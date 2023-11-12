@@ -6,10 +6,10 @@ end module Constant
 !System's parameters
 module System
     implicit none
-    integer, parameter:: N=2 !number of body in the system
+    integer, parameter:: N=4 !number of body in the system
     integer, parameter:: dim=2 !number of dimension/!!! Currently, the code only supports dim=2
     integer, parameter:: d=2*dim
-    real(8), dimension(N), parameter:: M=[100000.0, 1.0] !mass of bodies
+    real(8), dimension(N), parameter:: M=[1.0, 1.0, 1.0, 1.0] !mass of bodies
 end module System
 
 !simulation's parameters
@@ -30,7 +30,9 @@ program N_Body
     external:: deriv
 
     X(1,1)=0; X(1,2)=0; X(1,3)=0; X(1,4)=0
-    X(2,1)=0; X(2,2)=100; X(2,3)=100; X(2,4)=0
+    X(2,1)=0; X(2,2)=100; X(2,3)=0; X(2,4)=0
+    X(3,1)=0; X(3,2)=-100; X(3,3)=0; X(3,4)=0
+    X(4,1)=50; X(4,2)=-100; X(4,3)=0; X(4,4)=0
 
     open(1, file='bodies_movement.dat')
 
@@ -39,7 +41,7 @@ program N_Body
 
         call rk4(t,X,dt,N,d,deriv)
 
-        write(1,*) X(2,1), X(2,2)
+        write(1,*) X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2)
 
     enddo 
 
