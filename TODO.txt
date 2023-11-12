@@ -1,6 +1,0 @@
-- Identifier ce que représente les valeurs initiales (positions, vitesses) !!difficile à implémenter
-- Orienté objet
-- Commenter
-- Créer un service
-- Module système solaire
-- Animation: trajectoire, visualisation des points, visualisation des masses
