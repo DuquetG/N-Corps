@@ -1,4 +1,3 @@
-- Identifier ce que représente les valeurs initiales (positions, vitesses)
+- Identifier ce que représente les valeurs initiales (positions, vitesses) !!difficile à implémenter
 - Orienté objet
-- Séparer le data par des points virgules
 - Commenter
