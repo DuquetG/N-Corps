@@ -1,64 +1,36 @@
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 
-# Lire les données du fichier .dat
-with open('bodies_movement.dat', 'r') as file:
-    lines = file.readlines()
+# Charger le fichier CSV avec pandas
+data = pd.read_csv("bodies_movement2D.csv", delimiter=";")
 
-# Séparer les valeurs x et y pour chaque objet
-data = np.array([list(map(float, line.split())) for line in lines])
-print(data)
+# Créer une figure Plotly
+fig = go.Figure()
 
-# Nombre d'objets
-num_objects = len(data[0]) // 2
+# Ajouter une trace pour chaque objet
+for i in range(0, len(data.columns), 2):
+    trace = go.Scatter(x=data.iloc[:, i], y=data.iloc[:, i + 1],
+                      mode='markers', name=f'Objet {i//2 + 1}')
+    fig.add_trace(trace)
 
-# Créer une figure et un axe
-fig, ax = plt.subplots()
-ax.set_xlim(-200, 200)
-ax.set_ylim(-20000, 20000)
+# Configurer les paramètres de la mise en page
+fig.update_layout(title_text="Positions des objets au fil du temps",
+                  xaxis_title="Position X", yaxis_title="Position Y",
+                  showlegend=True)
 
-# Créer des objets pour chaque point initial
-points, = ax.plot([], [], marker='o', linestyle='', color='b', markersize=10)
-trails, = ax.plot([], [], linestyle='-', color='gray', alpha=0.5)
+# Ajouter les frames pour l'animation
+frames = [go.Frame(data=[go.Scatter(x=data.iloc[:frame + 1, i], y=data.iloc[:frame + 1, i + 1],
+                                   mode='markers', name=f'Objet {i//2 + 1}') for i in range(0, len(data.columns), 2)]) for frame in range(1, len(data))]
 
-# Nombre de frames à conserver dans la trajectoire
-trail_length = 50
+# Ajouter les frames à la figure
+fig.frames = frames
 
-# Liste pour stocker les trajectoires
-trajectories = [([], []) for _ in range(num_objects)]
-# print(trajectories)
+# Configurer les paramètres de l'animation
+animation_settings = dict(frame=dict(duration=1, redraw=True), fromcurrent=True)
+fig.update_layout(updatemenus=[dict(type='buttons', showactive=False,
+                                    buttons=[dict(label='Play',
+                                                  method='animate',
+                                                  args=[None, animation_settings])])])
 
-# Fonction d'initialisation de l'animation
-def init():
-    points.set_data([], [])
-    trails.set_data([], [])
-    return points, trails
-
-# Fonction de mise à jour pour chaque frame de l'animation
-# def update(frame):
-#     x_values = data[:, frame * 2::2]
-#     y_values = data[:, frame * 2 + 1::2]
-
-#     points.set_data(x_values, y_values)
-
-#     for i in range(num_objects):
-#         # Conserver les 50 dernières valeurs dans la trajectoire
-#         trajectories[i] = (trajectories[i][0][-trail_length:] + list(x_values[:, i]),
-#                            trajectories[i][1][-trail_length:] + list(y_values[:, i]))
-
-#         trails.set_data(trajectories[i][0], trajectories[i][1])
-
-#     return points, trails
-
-# Nombre total de frames (une frame pour chaque instant de temps)
-num_frames = len(data) // 2
-
-# Interval entre les frames en millisecondes
-interval = 100
-
-# Créer l'animation
-# ani = animation.FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, interval=interval)
-
-# Afficher l'animation
-# plt.show()
+# Afficher le graphique interactif
+fig.show()

@@ -16,6 +16,7 @@
 Masses = N
 
 # Generic plot-tweaking
+set datafile separator ";"
 set object 1 rectangle from graph 0,0 to graph 1,1 behind fc rgb "#00008B" fs solid
 set termoption font "Arial, 12"
 set title sprintf("Visualisation 2D des trajectoires des %d masses", N)
@@ -36,7 +37,7 @@ do for [i = 1:N] {
     ycoord = int(2. * i)
     
     # Append the plot command to the string
-    plot_commands = sprintf('%s, "bodies_movement.dat" using %d:%d with l t "Trajectoire masse %d"', plot_commands, xcoord, ycoord, i)
+    plot_commands = sprintf('%s, "bodies_movement2D.csv" using %d:%d with l t "Trajectoire masse %d"', plot_commands, xcoord, ycoord, i)
 }
 
 # Remove the leading comma and plot the accumulated commands

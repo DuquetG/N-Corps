@@ -2,23 +2,24 @@
 !Constantes fondamentales
 module Constant
     implicit none
-    real(8):: G=1 !G=6.67430*1e-11
+    real(8):: G=6.67430*1e-11
 end module Constant
 
 !System's parameters
 module System
     implicit none
-    integer, parameter:: N=2 !Number of body in the system
+    integer, parameter:: N=9 !Number of body in the system
     integer, parameter:: dim=2 !Number of dimension/!!! Currently, the code only supports dim=2
     integer, parameter:: d=2*dim
-    real(8), dimension(N), parameter:: M=[100000.0, 1.0] !Mass of bodies
+    real(8), dimension(N), parameter:: M=[1.989e30, 0.33011e24, 4.8675e24, 5.9724e24, &
+                                          0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24] !Mass of bodies
 end module System
 
 !Simulation's parameters
 module Simulation
     implicit none
     integer, parameter:: Nstep=100000 !number of steps considered for the simulation
-    real(8), parameter:: dt=0.01 !time step 
+    real(8), parameter:: dt=10000 !time step 
 end module Simulation
 
 
@@ -34,7 +35,14 @@ program DataCreation2D
 
     !Initialize position and velocity
     X(1,1)=0; X(1,2)=0; X(1,3)=0; X(1,4)=0
-    X(2,1)=0; X(2,2)=100; X(2,3)=100; X(2,4)=0
+    X(2,1)=57.909e9; X(2,2)=0; X(2,3)=0; X(2,4)=47.36e3
+    X(3,1)=108.209e9; X(3,2)=0; X(3,3)=0; X(3,4)=35.02e3
+    X(4,1)=149.596e9; X(4,2)=0; X(4,3)=0; X(4,4)=29.78e3
+    X(5,1)=227.923e9; X(5,2)=0; X(5,3)=0; X(5,4)=24.07e3
+    X(6,1)=778.570e9; X(6,2)=0; X(6,3)=0; X(6,4)=13e3
+    X(7,1)=1433.529e9; X(7,2)=0; X(7,3)=0; X(7,4)=9.68e3
+    X(8,1)=2872.463e9; X(8,2)=0; X(8,3)=0; X(8,4)=6.80e3
+    X(9,1)=4495.060e9; X(9,2)=0; X(9,3)=0; X(9,4)=5.43e3
 
     open(1, file='bodies_movement2D.csv')
 
@@ -44,7 +52,8 @@ program DataCreation2D
         !Update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
 
-        write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2)
+        write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
+                                     X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2)
 
     enddo 
 
