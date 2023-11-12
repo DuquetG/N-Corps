@@ -1,0 +1,4 @@
+- Identifier ce que représente les valeurs initiales (positions, vitesses)
+- Orienté objet
+- Séparer le data par des points virgules
+- Commenter
