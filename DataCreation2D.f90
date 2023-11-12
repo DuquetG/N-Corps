@@ -18,7 +18,7 @@ end module System
 !Simulation's parameters
 module Simulation
     implicit none
-    integer, parameter:: Nstep=100000 !number of steps considered for the simulation
+    integer, parameter:: Nstep=1000000 !number of steps considered for the simulation
     real(8), parameter:: dt=10000 !time step 
 end module Simulation
 
@@ -53,7 +53,7 @@ program DataCreation2D
         call rk4(t,X,dt,N,d,deriv)
 
         write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
-                                     X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2)
+                                     X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
 
     enddo 
 

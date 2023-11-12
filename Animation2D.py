@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # Charger le fichier CSV avec pandas
-data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 100 != 0)
+data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
 
 # Créer une liste de couleurs pour chaque objet
 colors = ["lemonchiffon", "silver", "goldenrod", "olivedrab", "indianred", "darksalmon", "sandybrown", "lightsteelblue", "blueviolet"]
@@ -23,10 +23,10 @@ fig.update_layout(title_text="Positions des masses au fil du temps",
                   showlegend=True,
                   plot_bgcolor='black',
                   paper_bgcolor='black',
-                  template="plotly_dark",
-                  xaxis=dict(range=[min(data.iloc[:, ::2].values.flatten()), max(data.iloc[:, ::2].values.flatten())]),
-                  yaxis=dict(range=[min(data.iloc[:, 1::2].values.flatten()), max(data.iloc[:, 1::2].values.flatten())])
-)
+                  template="plotly_dark")
+#                   xaxis=dict(range=[min(data.iloc[:, ::2].values.flatten()), max(data.iloc[:, ::2].values.flatten())]),
+#                   yaxis=dict(range=[min(data.iloc[:, 1::2].values.flatten()), max(data.iloc[:, 1::2].values.flatten())])
+# )
 
 # Ajouter les frames pour l'animation
 frames = [go.Frame(data=[go.Scatter(x=data.iloc[:frame + 1, i], y=data.iloc[:frame + 1, i + 1],
