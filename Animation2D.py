@@ -8,6 +8,7 @@ with open('bodies_movement.dat', 'r') as file:
 
 # Séparer les valeurs x et y pour chaque objet
 data = np.array([list(map(float, line.split())) for line in lines])
+print(data)
 
 # Nombre d'objets
 num_objects = len(data[0]) // 2
@@ -15,13 +16,11 @@ num_objects = len(data[0]) // 2
 # Créer une figure et un axe
 fig, ax = plt.subplots()
 ax.set_xlim(-200, 200)
-ax.set_ylim(-200, 200)
+ax.set_ylim(-20000, 20000)
 
 # Créer des objets pour chaque point initial
 points, = ax.plot([], [], marker='o', linestyle='', color='b', markersize=10)
 trails, = ax.plot([], [], linestyle='-', color='gray', alpha=0.5)
-
-for i in len(data):
 
 # Nombre de frames à conserver dans la trajectoire
 trail_length = 50
@@ -62,4 +61,4 @@ interval = 100
 # ani = animation.FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, interval=interval)
 
 # Afficher l'animation
-plt.show()
+# plt.show()

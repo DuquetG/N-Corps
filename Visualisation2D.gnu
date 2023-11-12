@@ -1,4 +1,6 @@
-#-- Gnuplot two dimensional visualisation program for our system's masses --#
+# ------------------------------------------------------------------------- #
+# - Gnuplot two dimensional visualisation program for our system's masses - #
+# ------------------------------------------------------------------------- #
 #                                                                           #
 #   To execute this code, write the following in the terminal:              #
 #                                                                           #
@@ -6,7 +8,7 @@
 #                                                                           #
 #   Make sur to specify the number of masses you want to show on the plot.  #
 #   To choose this number, replace "N=2" by the chosen number of masses in  #
-#   the command written above.                                              #
+#   the command written above. For X masses, write "N=X".                   #
 #                                                                           #
 # ------------------------------------------------------------------------- #
 
@@ -14,11 +16,15 @@
 Masses = N
 
 # Generic plot-tweaking
+set object 1 rectangle from graph 0,0 to graph 1,1 behind fc rgb "#00008B" fs solid
 set termoption font "Arial, 12"
 set title sprintf("Visualisation 2D des trajectoires des %d masses", N)
 set xlabel "Position en x"
 set ylabel "Position en y"
-set key box
+# set xrange [-100:100]
+# set xrange [-1000:1000]
+set key box opaque
+
 
 # Initialize an empty string to accumulate plot commands
 plot_commands = ""
@@ -35,3 +41,4 @@ do for [i = 1:N] {
 
 # Remove the leading comma and plot the accumulated commands
 eval("plot".plot_commands[2:])
+
