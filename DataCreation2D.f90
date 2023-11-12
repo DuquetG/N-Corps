@@ -116,7 +116,7 @@ subroutine force(X,Xdis,xforce,yforce)
                 yforce(i,j)=0  
             else if (i/=j) then
 
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3 !newton inverse square law
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3 !newton's inverse-square law
             yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/Xdis(j,i)**3
 
             xforce(j,i)=-xforce(i,j) 
