@@ -19,6 +19,8 @@ module Simulation
     real(8), parameter:: dt=0.01 !time step 
 end module Simulation
 
+
+!3D generalisation that is nearly identical to its 2D counterpart
 program N_Body
     use Constant
     use System
@@ -49,14 +51,14 @@ program N_Body
 
 end program N_Body
 
-subroutine deriv(t,X,dx)
+subroutine deriv(t,X,dX)
     use Constant
     use System
     use Simulation
     implicit none
     real(8), intent(in):: t
     real(8), dimension(N,d), intent(in):: X
-    real(8), dimension(N,d), intent(out)::dx
+    real(8), dimension(N,d), intent(out)::dX
     real(8), dimension(N,N):: xforce, yforce, zforce, Xdis
     integer:: i,j
     
@@ -64,18 +66,18 @@ subroutine deriv(t,X,dx)
     call force(X,Xdis,xforce,yforce,zforce)
 
     do i=1, N
-        dx(i,1)=X(i,4)
-        dx(i,2)=X(i,5)
-        dx(i,3)=X(i,6)
-        dx(i,4)=0
-        dx(i,5)=0
-        dx(i,6)=0
+        dX(i,1)=X(i,4)
+        dX(i,2)=X(i,5)
+        dX(i,3)=X(i,6)
+        dX(i,4)=0
+        dX(i,5)=0
+        dX(i,6)=0
 
 
         do j=1, N
-            dx(i,4)=dx(i,4)+1/M(i)*xforce(i,j)
-            dx(i,5)=dx(i,5)+1/M(i)*yforce(i,j)
-            dx(i,6)=dx(i,6)+1/M(i)*zforce(i,j)
+            dX(i,4)=dX(i,4)+1/M(i)*xforce(i,j)
+            dX(i,5)=dX(i,5)+1/M(i)*yforce(i,j)
+            dX(i,6)=dX(i,6)+1/M(i)*zforce(i,j)
         enddo
     enddo 
 
