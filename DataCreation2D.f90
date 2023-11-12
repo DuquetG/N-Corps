@@ -6,13 +6,13 @@ end module Constant
 !System's parameters
 module System
     implicit none
-    integer, parameter:: N=2 !number of body in the system
-    integer, parameter:: dim=2 !number of dimension/!!! Currently, the code only supports dim=2
+    integer, parameter:: N=2 !Number of body in the system
+    integer, parameter:: dim=2 !Number of dimension/!!! Currently, the code only supports dim=2
     integer, parameter:: d=2*dim
-    real(8), dimension(N), parameter:: M=[100000.0, 1.0] !mass of bodies
+    real(8), dimension(N), parameter:: M=[100000.0, 1.0] !Mass of bodies
 end module System
 
-!simulation's parameters
+!Simulation's parameters
 module Simulation
     implicit none
     integer, parameter:: Nstep=100000 !number of steps considered for the simulation
@@ -25,24 +25,24 @@ program DataCreation2D
     use System
     use Simulation 
     implicit none
-    real(8), dimension(N,d):: X !position/velocity matrix
-    real(8):: t
+    real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's label
+    real(8):: t               
     integer:: i,j,k
     external:: deriv  
 
-    !initialize position and velocity
+    !Initialize position and velocity
     X(1,1)=0; X(1,2)=0; X(1,3)=0; X(1,4)=0
     X(2,1)=0; X(2,2)=100; X(2,3)=100; X(2,4)=0
 
-    open(1, file='bodies_movement.dat')
+    open(1, file='bodies_movement2D.csv')
 
     do i=1, Nstep
         t=i*dt
 
-        !update X for a time step dt
+        !Update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
 
-        write(1,*) X(2,1), X(2,2)
+        write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2)
 
     enddo 
 
@@ -73,8 +73,8 @@ subroutine deriv(t,X,dx)
         
         !add all the forces applied for the N bodies
         do j=1, N
-            dx(i,3)=dx(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=...
-            dx(i,4)=dx(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=...
+            dx(i,3)=dx(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=mi*a_x=G*mi*m1/ri1+G*mi*m2/ri2+...
+            dx(i,4)=dx(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=ma_y
         enddo
     enddo 
 
