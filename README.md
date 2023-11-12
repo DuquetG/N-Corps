@@ -20,3 +20,6 @@ Collaborateurs:
 - Masse
 - Conditions initiales
 - ...
+## À savoir
+
+- Les fichiers .csv, .dat et .exe ne seront pas enregistrés dans le github après un commit.
