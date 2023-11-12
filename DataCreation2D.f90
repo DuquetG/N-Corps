@@ -19,7 +19,8 @@ module Simulation
     real(8), parameter:: dt=0.01 !time step 
 end module Simulation
 
-program N_Body
+
+program DataCreation2D
     use Constant
     use System
     use Simulation 
@@ -45,7 +46,7 @@ program N_Body
 
     close(1)
 
-end program N_Body
+end program DataCreation2D
 
 subroutine deriv(t,X,dx)
     use Constant
