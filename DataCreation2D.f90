@@ -25,11 +25,12 @@ program DataCreation2D
     use System
     use Simulation 
     implicit none
-    real(8), dimension(N,d):: X
+    real(8), dimension(N,d):: X !position/velocity matrix
     real(8):: t
     integer:: i,j,k
-    external:: deriv
+    external:: deriv  
 
+    !initialize position and velocity
     X(1,1)=0; X(1,2)=0; X(1,3)=0; X(1,4)=0
     X(2,1)=0; X(2,2)=100; X(2,3)=100; X(2,4)=0
 
@@ -38,6 +39,7 @@ program DataCreation2D
     do i=1, Nstep
         t=i*dt
 
+        !update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
 
         write(1,*) X(2,1), X(2,2)
@@ -48,6 +50,7 @@ program DataCreation2D
 
 end program DataCreation2D
 
+!Calculate the derivative of the X matrix
 subroutine deriv(t,X,dx)
     use Constant
     use System
@@ -63,19 +66,22 @@ subroutine deriv(t,X,dx)
     call force(X,Xdis,xforce,yforce)
 
     do i=1, N
-        dx(i,1)=X(i,3)
-        dx(i,2)=X(i,4)
+        dx(i,1)=X(i,3) !dx/dt=v_x
+        dx(i,2)=X(i,4) !dy/dt=v_y
         dx(i,3)=0
         dx(i,4)=0
-
+        
+        !add all the forces applied for the N bodies
         do j=1, N
-            dx(i,3)=dx(i,3)+1/M(i)*xforce(i,j)
-            dx(i,4)=dx(i,4)+1/M(i)*yforce(i,j)
+            dx(i,3)=dx(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=...
+            dx(i,4)=dx(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=...
         enddo
     enddo 
 
 end subroutine deriv
 
+!Calculate de Xdis matrix where Xdis(i,j) stands for 
+!the distance between the i and j bodies.
 subroutine distance(X,Xdis)
     use System
     implicit none
@@ -92,6 +98,7 @@ subroutine distance(X,Xdis)
 
 end subroutine distance
 
+!Calculate the force between each body.
 subroutine force(X,Xdis,xforce,yforce)
     use Constant
     use System
@@ -105,14 +112,14 @@ subroutine force(X,Xdis,xforce,yforce)
         do j=i, N
             
             if (i==j) then
-                xforce(i,j)=0
-                yforce(i,j)=0
+                xforce(i,j)=0  !the force of the body applied to itself is null
+                yforce(i,j)=0  
             else if (i/=j) then
 
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3 !newton inverse square law
             yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/Xdis(j,i)**3
 
-            xforce(j,i)=-xforce(i,j)
+            xforce(j,i)=-xforce(i,j) 
             yforce(j,i)=-yforce(i,j)
             end if
         enddo
@@ -120,6 +127,7 @@ subroutine force(X,Xdis,xforce,yforce)
 
 end subroutine
 
+!Implements the fourth-order Runge-Kutta method to update the positions of the bodies over time.
 subroutine rk4(t,X,dt,N,d,deriv)
     implicit none
     integer , intent (in) :: d,N
