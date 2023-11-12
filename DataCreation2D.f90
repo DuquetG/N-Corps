@@ -1,3 +1,5 @@
+
+!Constantes fondamentales
 module Constant
     implicit none
     real(8):: G=1 !G=6.67430*1e-11
@@ -25,7 +27,7 @@ program DataCreation2D
     use System
     use Simulation 
     implicit none
-    real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's label
+    real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
     real(8):: t               
     integer:: i,j,k
     external:: deriv  
@@ -50,15 +52,15 @@ program DataCreation2D
 
 end program DataCreation2D
 
-!Calculate the derivative of the X matrix
-subroutine deriv(t,X,dx)
+!Calculate the derivative dX of the X matrix
+subroutine deriv(t,X,dX)
     use Constant
     use System
     use Simulation
     implicit none
     real(8), intent(in):: t
     real(8), dimension(N,d), intent(in):: X
-    real(8), dimension(N,d), intent(out)::dx
+    real(8), dimension(N,d), intent(out)::dX !X's derivative
     real(8), dimension(N,N):: xforce, yforce, Xdis
     integer:: i,j
     
@@ -66,15 +68,15 @@ subroutine deriv(t,X,dx)
     call force(X,Xdis,xforce,yforce)
 
     do i=1, N
-        dx(i,1)=X(i,3) !dx/dt=v_x
-        dx(i,2)=X(i,4) !dy/dt=v_y
-        dx(i,3)=0
-        dx(i,4)=0
+        dX(i,1)=X(i,3) !dx/dt=v_x
+        dX(i,2)=X(i,4) !dy/dt=v_y
+        dX(i,3)=0
+        dX(i,4)=0
         
         !add all the forces applied for the N bodies
         do j=1, N
-            dx(i,3)=dx(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=mi*a_x=G*mi*m1/ri1+G*mi*m2/ri2+...
-            dx(i,4)=dx(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=ma_y
+            dX(i,3)=dX(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=mi*a_x=G*mi*m1/ri1+G*mi*m2/ri2+...
+            dX(i,4)=dX(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=ma_y
         enddo
     enddo 
 
