@@ -23,10 +23,8 @@ fig.update_layout(title_text="Positions des masses au fil du temps",
                   showlegend=True,
                   plot_bgcolor='black',
                   paper_bgcolor='black',
-                  template="plotly_dark",
-                  xaxis=dict(range=[min(data.iloc[:, ::2].values.flatten()), max(data.iloc[:, ::2].values.flatten())]),
-                  yaxis=dict(range=[min(data.iloc[:, 1::2].values.flatten()), max(data.iloc[:, 1::2].values.flatten())])
-)
+                  template="plotly_dark"
+                )
 
 # Ajouter les frames pour l'animation
 frames = [go.Frame(data=[go.Scatter(x=data.iloc[:frame + 1, i], y=data.iloc[:frame + 1, i + 1],
@@ -40,7 +38,15 @@ animation_settings = dict(frame=dict(duration=0.1, redraw=True), fromcurrent=Tru
 fig.update_layout(updatemenus=[dict(type='buttons', showactive=False,
                                     buttons=[dict(label='Play',
                                                   method='animate',
-                                                  args=[None, animation_settings])])])
+                                                  args=[None, animation_settings]),
+                                             dict(label='Full view',
+                                                  method='relayout',
+                                                  args=[{'xaxis.range': [min(data.iloc[:, ::2].values.flatten()), max(data.iloc[:, ::2].values.flatten())],
+                                                         'yaxis.range': [min(data.iloc[:, 1::2].values.flatten()), max(data.iloc[:, 1::2].values.flatten())]}])
+                                            ]
+                                    )
+                               ]
+                  )
 
 # Afficher le graphique interactif
 fig.show()
