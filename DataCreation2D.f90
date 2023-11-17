@@ -29,7 +29,9 @@ program DataCreation2D
     use Simulation 
     implicit none
     real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
-    real(8):: t               
+    real(8), dimension(N,N):: Xdis
+    real(8):: t
+    real(8):: epot, ecin        
     integer:: i,j,k
     external:: deriv  
 
@@ -45,21 +47,47 @@ program DataCreation2D
     X(9,1)=4495.060e9; X(9,2)=0; X(9,3)=0; X(9,4)=5.43e3
 
     open(1, file='bodies_movement2D.csv')
+    open(2, file='energy.dat')
 
     do i=1, Nstep
         t=i*dt
 
         !Update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
+        call distance(X,Xdis)
+        call energy(X, Xdis, ecin, epot)
 
         write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
                                      X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
+        write(2, *) ecin, epot, ecin+epot
 
     enddo 
 
     close(1)
+    close(2)
 
 end program DataCreation2D
+
+subroutine energy(X,Xdis,ecin,epot)
+    use Constant
+    use System
+    implicit none
+    real(8), dimension(N,4), intent(in):: X
+    real(8), dimension(N,N), intent(in):: Xdis
+    real(8), intent(out):: epot, ecin
+    integer:: i,j
+
+    ecin=0
+    epot=0
+
+    do i=1, N
+        ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2)
+        do j=i+1, N      
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)
+        enddo
+    enddo
+
+end subroutine energy
 
 !Calculate the derivative dX of the X matrix
 subroutine deriv(t,X,dX)
