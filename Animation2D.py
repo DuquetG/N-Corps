@@ -20,6 +20,7 @@ for i in range(0, len(data.columns), 2):
 # Configurer les paramètres de la mise en page
 fig.update_layout(title_text="Positions des masses au fil du temps",
                   xaxis_title="Position X", yaxis_title="Position Y",
+                  width=900, height=900,
                   showlegend=True,
                   plot_bgcolor='black',
                   paper_bgcolor='black',
