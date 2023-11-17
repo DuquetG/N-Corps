@@ -28,22 +28,29 @@ program DataCreation2D
     use System
     use Simulation 
     implicit none
-    real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
+    !real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
     real(8):: t               
-    integer:: i,j,k
+    integer:: i,j,k,a,b
     external:: deriv  
 
-    !Initialize position and velocity
-    X(1,1)=0; X(1,2)=0; X(1,3)=0; X(1,4)=0
-    X(2,1)=57.909e9; X(2,2)=0; X(2,3)=0; X(2,4)=47.36e3
-    X(3,1)=108.209e9; X(3,2)=0; X(3,3)=0; X(3,4)=35.02e3
-    X(4,1)=149.596e9; X(4,2)=0; X(4,3)=0; X(4,4)=29.78e3
-    X(5,1)=227.923e9; X(5,2)=0; X(5,3)=0; X(5,4)=24.07e3
-    X(6,1)=778.570e9; X(6,2)=0; X(6,3)=0; X(6,4)=13e3
-    X(7,1)=1433.529e9; X(7,2)=0; X(7,3)=0; X(7,4)=9.68e3
-    X(8,1)=2872.463e9; X(8,2)=0; X(8,3)=0; X(8,4)=6.80e3
-    X(9,1)=4495.060e9; X(9,2)=0; X(9,3)=0; X(9,4)=5.43e3
 
+
+    !Initialize position and velocity
+    integer :: nbCorps
+    real(8),allocatable :: X(:,:)
+    !integer :: q=0,p=0
+
+    open(unit=10, file='conditionsInitiales.txt', status='old', action='read')
+
+    read(10,*) nbCorps
+    allocate(X(nbCorps,d))
+    do j = 1, nbCorps
+    
+        read(10, *) (X(j,k),k=1,d)
+    end do
+
+  close(10)
+    
     open(1, file='bodies_movement2D.csv')
 
     do i=1, Nstep
@@ -51,10 +58,8 @@ program DataCreation2D
 
         !Update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
-
-        write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
-                                     X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
-
+        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2),b=1,nbCorps)!X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
+                                     !X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
     enddo 
 
     close(1)
