@@ -54,8 +54,9 @@ program DataCreation2D
 
         !Update X for a time step dt
         call rk4(t,X,dt,N,d,deriv)
-        call distance(X,Xdis)
-        call energy(X, Xdis, ecin, epot)
+
+        !call distance(X,Xdis)  !--> Only if you want to plot energy
+        !call energy(X, Xdis, ecin, epot)
 
         write (1, '(*(G0.6,:,";"))') X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
                                      X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
@@ -68,6 +69,7 @@ program DataCreation2D
 
 end program DataCreation2D
 
+!Calculate the energy of the system
 subroutine energy(X,Xdis,ecin,epot)
     use Constant
     use System
@@ -81,9 +83,9 @@ subroutine energy(X,Xdis,ecin,epot)
     epot=0
 
     do i=1, N
-        ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2)
+        ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2) !kinetic energy
         do j=i+1, N      
-            epot=epot-G*M(i)*M(j)/Xdis(i,j)
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
         enddo
     enddo
 
