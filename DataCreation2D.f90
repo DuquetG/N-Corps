@@ -9,7 +9,7 @@ end module Constant
 module System
     implicit none
     integer, parameter:: N=9 !Number of body in the system
-    integer, parameter:: dim=2 !Number of dimension/!!! Currently, the code only supports dim=2
+    integer, parameter:: dim=2 !Number of dimension
     integer, parameter:: d=2*dim
     real(8), dimension(N), parameter:: M=[1.989e30, 0.33011e24, 4.8675e24, 5.9724e24, &
                                           0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24] !Mass of bodies
