@@ -23,3 +23,4 @@ Collaborateurs:
 ## À savoir
 
 - Les fichiers .csv, .dat et .exe ne seront pas enregistrés dans le github après un commit.
+- Pour lancer le programme, exécuter dans le terminal .\DataCreation2D.exe conditionsInitiales.txt
