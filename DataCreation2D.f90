@@ -30,7 +30,8 @@ program DataCreation2D
     implicit none
     !real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
     !integer, parameter:: nbCorps=N
-    real(8):: t               
+    real(8):: t
+    real(8):: epot, ecin        
     integer:: i,j,k,a,b
     external:: deriv  
 
@@ -41,7 +42,8 @@ program DataCreation2D
     character(len=100) :: line, preset_name, filename
     real(8), allocatable :: X(:,:)
     real(8), allocatable :: M(:) !Mass of bodies
-    !integer :: q=0,p=0
+    real(8), allocatable:: Xdis(:,:)
+    
 
 
     if (command_argument_count() == 1) then
@@ -60,8 +62,10 @@ program DataCreation2D
     end if
 
     read(20,*) nbCorps
+    
     allocate(X(nbCorps,d))
     allocate(M(nbCorps))
+    allocate(Xdis(nbCorps,nbCorps))
     read(20,*) M
 
    
@@ -85,15 +89,44 @@ program DataCreation2D
         
         !Update X for a time step dt
         call rk4(t,X,dt,nbCorps,M,d,deriv)
+
+        call distance(nbCorps,M,X,Xdis)  !--> Only if you want to plot energy
+        call energy(nbCorps,M,X,Xdis,ecin,epot)
     
         write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2),b=1,nbCorps)!X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
                                      !X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
+        write(2, *) ecin, epot, ecin+epot
         write(1,*)
     enddo 
 
     close(1)
+    close(2)
 
 end program DataCreation2D
+
+!Calculate the energy of the system
+subroutine energy(N,M,X,Xdis,ecin,epot)
+    use Constant
+    use System
+    implicit none
+    integer :: N
+    real(8), dimension(N,d), intent(in):: X
+    real(8), dimension(N) :: M
+    real(8), dimension(N,N), intent(in):: Xdis
+    real(8), intent(out):: epot, ecin
+    integer:: i,j
+
+    ecin=0
+    epot=0
+
+    do i=1, N
+        ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2) !kinetic energy
+        do j=i+1, N      
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
+        enddo
+    enddo
+
+end subroutine energy
 
 !Calculate the derivative dX of the X matrix
 subroutine deriv(t,nbCorps,M,X,dX)
