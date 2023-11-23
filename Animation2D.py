@@ -25,7 +25,7 @@ fig.update_layout(title_text="Positions des masses au fil du temps",
                   plot_bgcolor='black',
                   paper_bgcolor='black',
                   template="plotly_dark"
-                )
+                 )
 
 # Ajouter les frames pour l'animation
 frames = [go.Frame(data=[go.Scatter(x=data.iloc[:frame + 1, i], y=data.iloc[:frame + 1, i + 1],
