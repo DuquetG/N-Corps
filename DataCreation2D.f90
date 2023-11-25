@@ -28,24 +28,22 @@ program DataCreation2D
     use System
     use Simulation 
     implicit none
-    !real(8), dimension(N,d):: X !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
-    !integer, parameter:: nbCorps=N
     real(8):: t
-    real(8):: epot, ecin        
+    real(8):: epot, ecin !:Potential and kinetic energies for the system as a whole       
     integer:: i,j,k,a,b
     external:: deriv  
 
 
 
     !Initialize position and velocity
-    integer :: nbCorps, io_status
-    character(len=100) :: line, preset_name, filename
-    real(8), allocatable :: X(:,:)
+    integer :: nbCorps, io_status !number of bodies and status update that is zero unless there is a problem with the file
+    character(len=100) :: filename 
+    real(8), allocatable :: X(:,:) !position/velocity matrix// X(i,1)=x_i, X(i,2)=y_i, X(i,3)=v_x_i, X(i,4)=v_y_i, i: body's index
     real(8), allocatable :: M(:) !Mass of bodies
-    real(8), allocatable:: Xdis(:,:)
+    real(8), allocatable:: Xdis(:,:) !The distance matrix between two masses; it is symetrical 
     
-
-
+    
+    !Fetches the file's name, either by asking or by being directly given it beforehand
     if (command_argument_count() == 1) then
         call get_command_argument(1, filename)
     else
@@ -56,6 +54,8 @@ program DataCreation2D
 
     open(unit=20, file=filename, status='old', action='read',iostat=io_status)
 
+
+    !This condition verifies and certifies tha the file opened correctly
     if (io_status /= 0) then
         write(*,*) 'Erreur lors de l''ouverture du fichier.'
         stop
@@ -69,21 +69,23 @@ program DataCreation2D
     read(20,*) M
 
    
-    
     do j = 1, nbCorps
-        write(*,*) "prout"
         read(20,*) (X(j,k),k=1,d)
     end do
 
     close(20)
-    !write(*,*) M
-    write(*,*) X(9,4)
+
+
     open(1, file='bodies_movement2D.csv',iostat=io_status)
+
+    open(2, file='energies2D.csv',iostat=io_status)
+
     if (io_status /= 0) then
         write(*,*) 'Erreur lors de l''ouverture du fichier.'
         stop
     end if
-    write(*,*) "kocessa"
+  
+    !Put that in a function of its own
     do i=1, Nstep
         t=i*dt
         
@@ -93,8 +95,7 @@ program DataCreation2D
         call distance(nbCorps,M,X,Xdis)  !--> Only if you want to plot energy
         call energy(nbCorps,M,X,Xdis,ecin,epot)
     
-        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2),b=1,nbCorps)!X(1,1), X(1,2), X(2,1), X(2,2), X(3,1), X(3,2), X(4,1), X(4,2), &
-                                     !X(5,1), X(5,2), X(6,1), X(6,2), X(7,1), X(7,2), X(8,1), X(8,2), X(9,1), X(9,2)
+        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2),b=1,nbCorps)
         write(2, *) ecin, epot, ecin+epot
         write(1,*)
     enddo 
