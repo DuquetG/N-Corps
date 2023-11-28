@@ -13,7 +13,7 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
     Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
     logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
-    character(len=*), intent(in):: format             !trajectory's output format, 'csv' or 'dat'.
+    character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
 
     integer:: i, io_status, a, b
     Real(8):: t, ecin, epot
