@@ -13,7 +13,7 @@ fig = go.Figure()
 # Ajouter une trace pour chaque objet
 for i in range(0, len(data.columns), 2):
     trace = go.Scatter(x=data.iloc[:, i], y=data.iloc[:, i + 1],
-                      mode='markers', name=f'Masse {i//2 + 1}',
+                      mode='lines', name=f'Masse {i//2 + 1}',
                       marker=dict(color=colors[i//2]))
     fig.add_trace(trace)
 
@@ -29,7 +29,7 @@ fig.update_layout(title_text="Positions des masses au fil du temps",
 
 # Ajouter les frames pour l'animation
 frames = [go.Frame(data=[go.Scatter(x=[data.iloc[frame, i]], y=[data.iloc[frame, i + 1]],
-                                   mode='lines', name=f'Masse {i//2 + 1}') for i in range(0, len(data.columns), 2)]) for frame in range(1, len(data))]
+                                   mode='markers', name=f'Masse {i//2 + 1}') for i in range(0, len(data.columns), 2)]) for frame in range(1, len(data))]
 
 # Pour afficher les trajectoires selon des lignes, utiliser le code ci-dessous.
 
