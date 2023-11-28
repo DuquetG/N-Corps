@@ -21,8 +21,9 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
     external:: deriv 
     write(*,*) format
     open(1, file='bodies_movement2D.csv',iostat=io_status)
-    open(2, file='bodies_movement2D.dat')
-    open(3, file='energy.dat')
+    open(2, file='bodies_movement2D.dat',iostat=io_status)
+    open(3, file='energy.csv',iostat=io_status)
+    open(4, file='energy.dat',iostat=io_status)
 
     if (format/='csv' .and. format/='dat') then
         write(*,*) 'Le format de sortie doit être .dat ou .csv'
@@ -33,7 +34,6 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
         write(*,*) 'Erreur lors de l''ouverture du fichier.'
         stop
     end if
-
     do i=0, Nstep
         call rk4(t,X,dt,nbCorps,M,deriv)
 
@@ -41,6 +41,7 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
 
             if (format=='csv') then
                 write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2), b=1,nbCorps)
+                write(1,*)
             endif
 
             if (format=='dat') then
@@ -53,7 +54,17 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
 
             call distance(nbCorps,X,Xdis)
             call energy(nbCorps,M,X,Xdis,ecin,epot)
-            write(3,*) ecin, epot, ecin+epot
+
+            if (format=='csv') then
+                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot
+                write(3,*)
+            endif
+
+            if (format=='dat') then
+                write(4,*) ecin, epot, ecin+epot
+            endif 
+
+            
 
         end if
     end do
