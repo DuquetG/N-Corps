@@ -5,18 +5,29 @@ module Constant
     real(8):: G=6.67430*1e-11
 end module Constant
 
-subroutine simulation2D(X, M, nbCorps, Nstep, dt)
+subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
     implicit none
-    integer:: nbCorps, Nstep
+    integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
+    Real(8), intent(in):: dt                            !time step
+    Real(8), intent(in), dimension(nbCorps):: M         !M(i)= mass of the body 'i'
+    Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
+    logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
+    logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
+    character(len=*), intent(in):: format             !trajectory's output format, 'csv' or 'dat'.
+
     integer:: i, io_status, a, b
-    Real(8):: dt,t, ecin, epot
-    Real(8), dimension(nbCorps):: M
-    Real(8), dimension(nbCorps,4):: X
+    Real(8):: t, ecin, epot
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
-
+    write(*,*) format
     open(1, file='bodies_movement2D.csv',iostat=io_status)
-    open(2, file='energy.dat')
+    open(2, file='bodies_movement2D.dat')
+    open(3, file='energy.dat')
+
+    if (format/='csv' .and. format/='dat') then
+        write(*,*) 'Le format de sortie doit être .dat ou .csv'
+        stop
+    endif 
 
     if (io_status /= 0) then
         write(*,*) 'Erreur lors de l''ouverture du fichier.'
@@ -25,13 +36,24 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt)
 
     do i=0, Nstep
         call rk4(t,X,dt,nbCorps,M,deriv)
-        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2), b=1,nbCorps)
-        
-        if (mod(i,50)==0) then
+
+        if (wtraj) then
+
+            if (format=='csv') then
+                write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2), b=1,nbCorps)
+            endif
+
+            if (format=='dat') then
+                write(2,*) ((X(b, a), a = 1, 2), b=1,nbCorps)
+            endif 
+
+        endif
+
+        if (wenergy) then
 
             call distance(nbCorps,X,Xdis)
             call energy(nbCorps,M,X,Xdis,ecin,epot)
-            write(2,*) ecin, epot, ecin+epot
+            write(3,*) ecin, epot, ecin+epot
 
         end if
     end do
@@ -154,7 +176,7 @@ subroutine rk4(t,X,dt,N,M,deriv)
     real (8) , dimension (N,4) :: Xp , k1 , k2 , k3 , k4
     ddt = 0.5* dt
     call deriv (t,N,M,X,k1); Xp = X + ddt *k1
-    call deriv (t+ddt,N,M,Xp ,k2); Xp = X + ddt*k2
+    call deriv (t+ddt,N,M,Xp,k2); Xp = X + ddt*k2
     call deriv (t+ddt,N,M,Xp ,k3); Xp = X + dt*k3
     call deriv (t+dt,N,M,Xp ,k4); X = X + dt *( k1 + 2.0* k2 + 2.0* k3 + k4 )/6.0
 

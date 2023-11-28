@@ -25,7 +25,7 @@ subroutine Simulation3D(X, M, nbCorps, Nstep, dt)
 
     do i=0, Nstep
         call rk4(t,X,dt,nbCorps,M,deriv)
-        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2), b=1,nbCorps)
+        write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2, 3), b=1,nbCorps)
         
         if (mod(i,50)==0) then
 
@@ -39,6 +39,28 @@ subroutine Simulation3D(X, M, nbCorps, Nstep, dt)
     close(1)
     close(2)
 end subroutine Simulation3D
+
+subroutine energy(N,M,X,Xdis,ecin,epot)
+    use Constant
+    implicit none
+    integer :: N
+    real(8), dimension(N,6), intent(in):: X
+    real(8), dimension(N) :: M
+    real(8), dimension(N,N), intent(in):: Xdis
+    real(8), intent(out):: epot, ecin
+    integer:: i,j
+
+    ecin=0
+    epot=0
+
+    do i=1, N
+        ecin=ecin+0.5*M(i)*(X(i,4)**2+X(i,5)**2+X(i,6)**2) !kinetic energy
+        do j=i+1, N      
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
+        enddo
+    enddo
+
+end subroutine energy
 
 subroutine deriv(t,nbCorps,M,X,dX)
     use Constant
