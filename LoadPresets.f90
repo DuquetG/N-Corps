@@ -47,7 +47,6 @@ program DataCreation2D
         read(20,*) (X(j,k),k=1,d)
     end do
 
-    write(*,*) "prouton 3000"
     
     
    

@@ -19,7 +19,6 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
     Real(8):: t, ecin, epot
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
-    write(*,*) format
     open(1, file='bodies_movement2D.csv',iostat=io_status)
     open(2, file='bodies_movement2D.dat',iostat=io_status)
     open(3, file='energy.csv',iostat=io_status)
