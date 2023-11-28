@@ -5,7 +5,7 @@ module Constant
     real(8):: G=6.67430*1e-11
 end module Constant
 
-subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
+subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel)
     implicit none
     integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
     Real(8), intent(in):: dt                            !time step
@@ -13,16 +13,18 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
     Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
     logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
+    logical, intent(in):: wviriel                       !boolean, if wviriel=.true., the program will output the mean energies to verify the Virial theorem
     character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
 
     integer:: i, io_status, a, b
-    Real(8):: t, ecin, epot
+    Real(8):: t, ecin, epot, ecinmoy=0, epotmoy=0
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
     open(1, file='bodies_movement2D.csv',iostat=io_status)
     open(2, file='bodies_movement2D.dat',iostat=io_status)
     open(3, file='energy.csv',iostat=io_status)
     open(4, file='energy.dat',iostat=io_status)
+    open(5, file='viriel.csv',iostat=io_status)
 
     if (format/='csv' .and. format/='dat') then
         write(*,*) 'Le format de sortie doit être .dat ou .csv'
@@ -55,14 +57,23 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
             call energy(nbCorps,M,X,Xdis,ecin,epot)
 
             if (format=='csv') then
-                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot
+                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot, i*dt
                 write(3,*)
+                
             endif
 
             if (format=='dat') then
-                write(4,*) ecin, epot, ecin+epot
+                write(4,*) ecin, epot, ecin+epot, i*dt
             endif 
 
+
+            if (wviriel) then
+                ecinmoy=(ecinmoy*(i)+ecin)/(i+1)
+                epotmoy=(epotmoy*(i)+epot)/(i+1)
+                write(5, '(*(G0.6,:,";"))', advance='no') ecinmoy, epotmoy, i*dt
+                write(5,*)
+
+            endif
             
 
         end if
@@ -70,6 +81,9 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
 
     close(1)
     close(2)
+    close(3)
+    close(4)
+    close(5)
 
 end subroutine simulation2D 
 

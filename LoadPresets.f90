@@ -4,7 +4,7 @@ program DataCreation2D
     real(8), parameter:: dt=10000.      !time step
     integer, parameter:: dim=2         !number of dimension for the problem (currently only support dim=2)
     integer, parameter:: d=2*dim
-    logical, parameter:: wtraj=.true., wenergy=.true.
+    logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true.
     character(len=*), parameter::  format='csv'
 
     !Initialize position and velocity
@@ -52,7 +52,7 @@ program DataCreation2D
    
     close(20)
 
-    call simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
+    call simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel)
 
 end program DataCreation2D
 
