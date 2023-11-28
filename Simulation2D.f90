@@ -34,7 +34,8 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy)
         stop
     end if
     do i=0, Nstep
-        call rk4(t,X,dt,nbCorps,M,deriv)
+        
+        call euler(t,X,dt,nbCorps,M,deriv)
 
         if (wtraj) then
 
@@ -175,19 +176,4 @@ subroutine force(nbCorps,M,X,Xdis,xforce,yforce)
 
 end subroutine
 
-!Implements the fourth-order Runge-Kutta method to update the positions of the bodies over time.
-subroutine rk4(t,X,dt,N,M,deriv)
-    implicit none
-    integer , intent (in) :: N
-    real (8) , intent (in) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,4) , intent ( inout ) :: X
-    real (8) :: ddt
-    real (8) , dimension (N,4) :: Xp , k1 , k2 , k3 , k4
-    ddt = 0.5* dt
-    call deriv (t,N,M,X,k1); Xp = X + ddt *k1
-    call deriv (t+ddt,N,M,Xp,k2); Xp = X + ddt*k2
-    call deriv (t+ddt,N,M,Xp ,k3); Xp = X + dt*k3
-    call deriv (t+dt,N,M,Xp ,k4); X = X + dt *( k1 + 2.0* k2 + 2.0* k3 + k4 )/6.0
-
-end subroutine rk4
+include 'Integrator.f90'
