@@ -2,13 +2,15 @@
 !Constantes fondamentales
 module Constant
     implicit none
-    real(8):: G=6.67430*1e-11
+    real(8):: G=6.67430*1e-11, eps=1e5, tolerance=1e25
 end module Constant
 
-subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel)
+subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel)
+    use constant
+
     implicit none
     integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
-    Real(8), intent(in):: dt                            !time step
+    Real(8), intent(inout):: dt                            !time step
     Real(8), intent(in), dimension(nbCorps):: M         !M(i)= mass of the body 'i'
     Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
@@ -16,8 +18,9 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel
     logical, intent(in):: wviriel                       !boolean, if wviriel=.true., the program will output the mean energies to verify the Virial theorem
     character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
 
+
     integer:: i, io_status, a, b
-    Real(8):: t, ecin, epot, ecinmoy=0, epotmoy=0
+    Real(8):: t=0, ecin, epot, ecinmoy=0, epotmoy=0
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
     open(1, file='bodies_movement2D.csv',iostat=io_status)
@@ -36,8 +39,9 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel
         stop
     end if
     do i=0, Nstep
-        
-        call euler(t,X,dt,nbCorps,M,deriv)
+
+        call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
+        !call rk4(t,X,dt,Nbcorps,M,deriv)
 
         if (wtraj) then
 
@@ -54,17 +58,16 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel
 
         if (wenergy) then
 
-            call distance(nbCorps,X,Xdis)
-            call energy(nbCorps,M,X,Xdis,ecin,epot)
+            call energy(nbCorps,M,X,ecin,epot)
 
             if (format=='csv') then
-                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot, i*dt
+                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot, t
                 write(3,*)
-                
+
             endif
 
             if (format=='dat') then
-                write(4,*) ecin, epot, ecin+epot, i*dt
+                write(4,*) ecin, epot, ecin+epot, t
             endif 
 
 
@@ -89,13 +92,12 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,wviriel
 end subroutine simulation2D 
 
 !Calculate the energy of the system
-subroutine energy(N,M,X,Xdis,ecin,epot)
+subroutine energy(N,M,X,ecin,epot)
     use Constant
     implicit none
     integer :: N
     real(8), dimension(N,4), intent(in):: X
     real(8), dimension(N) :: M
-    real(8), dimension(N,N), intent(in):: Xdis
     real(8), intent(out):: epot, ecin
     integer:: i,j
 
@@ -105,7 +107,7 @@ subroutine energy(N,M,X,Xdis,ecin,epot)
     do i=1, N
         ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2) !kinetic energy
         do j=i+1, N      
-            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
+            epot=epot-G*M(i)*M(j)/sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)     !potential energy
         enddo
     enddo
 
@@ -124,8 +126,7 @@ subroutine deriv(t,nbCorps,M,X,dX)
    
     integer:: i,j
     
-    call distance(nbCorps,X,Xdis)
-    call force(nbCorps,M,X,Xdis,xforce,yforce)
+    call force(nbCorps,M,X,xforce,yforce)
 
     do i=1, nbCorps
         dX(i,1)=X(i,3) !dx/dt=v_x
@@ -161,15 +162,15 @@ subroutine distance(nbCorps,X,Xdis)
 end subroutine distance
 
 !Calculate the force between each body.
-subroutine force(nbCorps,M,X,Xdis,xforce,yforce)
+subroutine force(nbCorps,M,X,xforce,yforce)
     use Constant
     implicit none
     integer, intent(in) :: nbCorps
     real(8), dimension(nbCorps), intent(in) :: M
     real(8), dimension(nbCorps,4), intent(in):: X
-    real(8), dimension(nbCorps,nbCorps), intent(in):: Xdis
     real(8), dimension(nbCorps,nbCorps), intent(out):: xforce
     real(8), dimension(nbCorps,nbCorps), intent(out):: yforce
+    real(8):: Xdis
     integer:: i,j
     do i=1, nbCorps
         do j=i, nbCorps
@@ -178,9 +179,9 @@ subroutine force(nbCorps,M,X,Xdis,xforce,yforce)
                 xforce(i,j)=0  !the force of the body applied to itself is null
                 yforce(i,j)=0  
             else if (i/=j) then
-
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3 !newton's inverse-square law
-            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/Xdis(j,i)**3
+            Xdis=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/((Xdis**2+eps**2)**(1.5)) !newton's inverse-square law
+            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/((Xdis**2+eps**2)**(1.5))
 
             xforce(j,i)=-xforce(i,j) 
             yforce(j,i)=-yforce(i,j)

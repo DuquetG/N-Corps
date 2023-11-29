@@ -1,7 +1,7 @@
 subroutine rk4(t,X,dt,N,M,deriv)
     implicit none
     integer , intent (in) :: N
-    real (8) , intent (in) :: t, dt
+    real (8) , intent (inout) :: t, dt
     real(8), dimension(N), intent(in) :: M
     real (8) , dimension (N,4) , intent ( inout ) :: X
     real (8) :: ddt
@@ -11,6 +11,7 @@ subroutine rk4(t,X,dt,N,M,deriv)
     call deriv (t+ddt,N,M,Xp,k2); Xp = X + ddt*k2
     call deriv (t+ddt,N,M,Xp ,k3); Xp = X + dt*k3
     call deriv (t+dt,N,M,Xp ,k4); X = X+dt*(k1+2.0*k2+2.0*k3+k4)/6.0
+    t=t+dt
 end subroutine rk4
 
 subroutine euler(t,X,dt,N,M,deriv)
@@ -40,3 +41,39 @@ subroutine velocity_verlet (t,X,dt,N,M,deriv)
         X(N /2+1: N, :) = X(N /2+1: N, :) + 0.5* dt* dX(N/2+1: N, :)
         X(N /2+1: N, :) = X(N /2+1: N, :) + 0.5* dt* dX(N /2+1: N, :)
 end subroutine velocity_verlet
+
+subroutine adaptativerk4(t,X,dt,N,M,tolerance)
+    implicit none
+    integer , intent (in) :: N
+    real (8) , intent (inout) :: t, dt
+    real(8), dimension(N), intent(in) :: M
+    real (8) , dimension (N,4) , intent ( inout ) :: X
+    real (8), intent(in) :: tolerance
+    real (8), dimension(N,4):: Xnew
+    real (8)::  etot1, etot2, epot, ecin
+    external:: deriv
+
+    Xnew=X
+    call energy(N,M,X,ecin,epot)
+    etot1=epot+ecin
+    Call rk4(t,Xnew,dt,N,M,deriv)
+    call energy(N,M,Xnew,ecin,epot)
+    etot2=epot+ecin
+
+    if(abs(etot2-etot1)<=tolerance) then
+        dt=dt*1.2
+    else 
+        dt=dt/1.2
+    end if
+    !write(*,*) dt
+    X=Xnew
+    !write(*,*) t
+    t=t+dt
+
+    
+
+end subroutine adaptativerk4
+
+
+
+
