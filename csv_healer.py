@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 
-nb_simulations = 100
+nb_simulations = 3
 file_name = "Cured_Triangle.csv"
 
 # Charger le fichier CSV
@@ -12,8 +12,6 @@ final_lines = int(data.shape[0]/nb_simulations)
 
 # Vérifier la forme initiale du DataFrame
 print("Forme initiale du DataFrame :", data.shape)
-
-print(range(nb_simulations))
 
 # Créer le nouveau fichier CSV
 new_file = pd.DataFrame().to_csv(file_name, index=False, header=False)
