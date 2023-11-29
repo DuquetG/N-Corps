@@ -31,7 +31,7 @@ def plot_energy():
 
 
 #Graphique de l'énergie potentielle et cinétique moyenne en fonction du temps
-def plot_viriel():
+def plot_mean_energies():
     data = pd.read_csv("viriel.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
     data=data.to_numpy()
     for i in range(0,math.floor(data.shape[1]-1)):
@@ -43,6 +43,15 @@ def plot_viriel():
 
 #Graphique de la distance entre 2 masses en fonction du temps (on devrait avoir une courbe exponentielle)
 
-
+#Graphique de l'exposant de Lyapunov
+def plot_Lyapunov():
+    data = pd.read_csv("Lyapunov.csv", delimiter=";", skiprows=lambda x: x % 10 != 0)
+    data=data.to_numpy()
+    for i in range(1,math.floor(data.shape[1])):
+        plt.plot(data[:,0],data[:,i])
+    plt.title('Exposant de Lyapunov au fil du temps')
+    plt.xlabel("t")
+    plt.ylabel("Lambda")
 #Exécution des graphiques
-plot_viriel()
+plot_Lyapunov()
+plt.show()
