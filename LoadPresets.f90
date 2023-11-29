@@ -5,7 +5,7 @@ program DataCreation2D
     integer, parameter:: dim=2         !number of dimension for the problem (currently only support dim=2)
     integer, parameter:: d=2*dim
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true.
-    character(len=*), parameter::  format='csv'
+    character(len=*), parameter::  format='dat'
 
     !Initialize position and velocity
     integer :: nbCorps, io_status

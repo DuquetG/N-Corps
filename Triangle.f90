@@ -1,5 +1,5 @@
 program Triangle
-    integer, parameter :: nbCorps = 3, Nstep = 100000, nbSimulations = 3
+    integer, parameter :: nbCorps = 3, Nstep = 100000, nbSimulations = 30
     integer :: sim, line
     real(8), parameter :: dt = 1000.
     real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24, 4.8675e24]
