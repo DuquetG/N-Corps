@@ -37,7 +37,7 @@ do for [i = 1:N] {
     ycoord = int(2. * i)
     
     # Append the plot command to the string
-    plot_commands = sprintf('%s, "bodies_movement2D.csv" using %d:%d with l t "Trajectoire masse %d"', plot_commands, xcoord, ycoord, i)
+    plot_commands = sprintf('%s, "CSVs/positions_2D.csv" using %d:%d with l t "Trajectoire masse %d"', plot_commands, xcoord, ycoord, i)
 }
 
 # Remove the leading comma and plot the accumulated commands

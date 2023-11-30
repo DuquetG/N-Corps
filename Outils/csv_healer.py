@@ -14,7 +14,7 @@ def heal(in_filename,out_filename,nb_simulations):
     final_lines = int(data.shape[0]/nb_simulations)
 
     # Vérifier la forme initiale du DataFrame
-    print("Forme initiale du DataFrame :", data.shape)
+    # print("Forme initiale du DataFrame :", data.shape)
 
     # Créer le nouveau fichier CSV
     new_file = pd.DataFrame().to_csv(out_filename, index=False, header=False)
@@ -33,9 +33,9 @@ def heal(in_filename,out_filename,nb_simulations):
     new_file = pd.read_csv(out_filename, delimiter=";", header=None)
 
     # Vérifier la forme du nouveau DataFrame
-    print("Forme du nouveau DataFrame :", new_file.shape)
+    # print("Forme du nouveau DataFrame :", new_file.shape)
 
 nb_simulations = int(sys.argv[1])
 
-heal('Triangle.csv','Cured_Triangle.csv',nb_simulations)
-heal('TriangleV.csv','Cured_Triangle_v.csv',nb_simulations)
+heal('CSVs/all_positions_2D.csv','CSVs/cured_all_positions_2D.csv',nb_simulations)
+heal('CSVs/all_velocities_2D.csv','CSVs/cured_all_velocities_2D.csv',nb_simulations)

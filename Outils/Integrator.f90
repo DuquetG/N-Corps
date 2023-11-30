@@ -25,7 +25,6 @@ subroutine euler(t,X,dt,N,M,deriv)
     X= X+dt*dX
 end subroutine euler
 
-
 subroutine velocity_verlet (t,X,dt,N,M,deriv)
     implicit none
     integer , intent (in) :: n
@@ -69,11 +68,5 @@ subroutine adaptativerk4(t,X,dt,N,M,tolerance)
     X=Xnew
     !write(*,*) t
     t=t+dt
-
-    
-
 end subroutine adaptativerk4
-
-
-
 

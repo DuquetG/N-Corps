@@ -1,8 +1,8 @@
-program Triangle
-    integer, parameter :: nbCorps = 2, Nstep = 100000, chosen_mass = 2
-    integer :: sim, line, line2, nbSimulations = 10, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
+program main2D
+    integer, parameter :: nbCorps = 2, Nstep = 30000, chosen_mass = 2
+    integer :: sim, line, line2, nbSimulations = 30, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
     integer:: length = 0
-    real(8) :: dt = 10.
+    real(8) :: dt = 50.
     real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24] !, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24]
     real(8), dimension(nbCorps, 4) :: X
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
@@ -10,17 +10,17 @@ program Triangle
     character(len=*), parameter::  format='csv'
     integer :: status
 
-    
-    open(1, file="Triangle.csv", action='readwrite', status='replace')
+
+    open(1, file="CSVs/all_positions_2D.csv", action='readwrite', status='replace')
     close(1)
-    open(6, file="TriangleV.csv", action='readwrite', status='replace')
+    open(6, file="CSVs/all_velocities_2D.csv", action='readwrite', status='replace')
     close(6)
 
     
     do sim = 1, nbSimulations
         
         X(1,1) = 0; X(1,2) = 0; X(1,3) = 0; X(1,4) = 0
-        X(2,1) = 57.909e9+(sim-1)*5e8; X(2,2) = 0; X(2,3) = 0; X(2,4) = 47.36e3
+        X(2,1) = 57.909e9+(sim-1)*5e7; X(2,2) = 0; X(2,3) = 0; X(2,4) = 47.36e3
         ! X(3,1) = 108.209e9; X(3,2) = 0; X(3,3) = 0; X(3,4) = 35.02e3
         ! X(4,1) = 149.596e9; X(4,2) = 0; X(4,3) = 0; X(4,4) = 29.78e3
         ! X(5,1) = 227.923e9; X(5,2) = 0; X(5,3) = 0; X(5,4) = 24.07e3
@@ -31,8 +31,8 @@ program Triangle
 
         call Simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel, wvelocity)
         
-        open(2, file="Triangle.csv", action='readwrite', position='append')
-        open(3, file="bodies_movement2D.csv", action='read')
+        open(2, file="CSVs/all_positions_2D.csv", action='readwrite', position='append')
+        open(3, file="CSVs/positions_2D.csv", action='read')
        
         do line = 0, Nstep-1
             read(3, '(A)') current
@@ -45,8 +45,8 @@ program Triangle
         close(2)
 
 
-        open(4, file="TriangleV.csv", action='readwrite', position='append')
-        open(5, file="v.csv", action='read')
+        open(4, file="CSVs/all_velocities_2D.csv", action='readwrite', position='append')
+        open(5, file="CSVs/velocities_2D.csv", action='read')
        
         do line2 = 0, Nstep-1
             read(5, '(A)') current_v
@@ -59,16 +59,17 @@ program Triangle
     enddo
 
 
-    write(command, '(A,I0)') "python csv_healer.py ", nbSimulations
+    write(command, '(A,I0)') "python3 Outils/csv_healer.py ", nbSimulations
     call execute_command_line(command, wait=.true., exitstat=status)
     
-    !call system("python csv_healer.py")
-    ! call system("python3 Animation2D.py") 
+    call system("python3 Outils/Animation2D.py")
 
-    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
+    ! call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
+    
+    ! call system("python3 Outils/graphiques.py")
 
-end program Triangle
+end program main2D
 
 
-include 'Simulation2D.f90'
-include 'Lyapunov.f90'
+include 'Outils/Simulation2D.f90'
+include 'Outils/Lyapunov.f90'

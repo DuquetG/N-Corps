@@ -11,9 +11,9 @@ implicit none
     lol = 1
     lmfao = 1
 
-    open(1, file='Cured_Triangle.csv')  
-    open(3, file='Cured_Triangle_v.csv')      
-    open(2, file='Lyapunov.csv')
+    open(1, file='CSVs/all_positions_2D.csv')  
+    open(3, file='CSVs/all_velocities_2D.csv')      
+    open(2, file='CSVs/Lyapunov.csv')
 
     allocate(X(Nstep, nbCorps * 2 * nb_simulations))
     allocate(Xstep(nbCorps * 2 * nb_simulations))
