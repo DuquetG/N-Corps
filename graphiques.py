@@ -4,8 +4,8 @@ import numpy as np
 import math
 
 # Charger le fichier CSV avec pandas
-data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
-data=data.to_numpy()
+#data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
+#data=data.to_numpy()
 #Graphique des positions dans le temps, avec code couleur pour chaque masse
 def plot_positions():
     data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
@@ -45,13 +45,34 @@ def plot_mean_energies():
 
 #Graphique de l'exposant de Lyapunov
 def plot_Lyapunov():
-    data = pd.read_csv("Lyapunov.csv", delimiter=";", skiprows=lambda x: x % 10 != 0)
+    data = pd.read_csv("Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 10 != 0)
     data=data.to_numpy()
+    legende = []
     for i in range(1,math.floor(data.shape[1])):
+        legende.append(f"L{i}")
         plt.plot(data[:,0],data[:,i])
+    plt.axhline(y=0, color='black', linestyle='--', label='y=0')
+    plt.plot()
     plt.title('Exposant de Lyapunov au fil du temps')
     plt.xlabel("t")
     plt.ylabel("Lambda")
+    plt.legend((legende))
+
+#Graphique temps de Lyapunov
+def plot_Lyapunov_time():
+    data = pd.read_csv("Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 10 != 0)
+    data=data.to_numpy()
+    legende = []
+    for i in range(1,math.floor(data.shape[1])):
+        legende.append(f"T{i}")
+        plt.plot(data[:,0],1/data[:,i])
+    #plt.axhline(y=0, color='black', linestyle='--', label='y=0')
+    plt.plot()
+    plt.title('Temps de Lyapunov au fil du temps')
+    plt.xlabel("t")
+    plt.ylabel("Tau")
+    plt.legend((legende))
 #Exécution des graphiques
-plot_Lyapunov()
+
+plot_Lyapunov_time()
 plt.show()

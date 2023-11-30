@@ -1,15 +1,24 @@
 program Triangle
-    integer, parameter :: nbCorps = 2, Nstep = 100000, nbSimulations = 3, chosen_mass = 2
-    integer :: sim, line
-    real(8) :: dt = 100.
+    integer, parameter :: nbCorps = 2, Nstep = 100000, chosen_mass = 2
+    integer :: sim, line, line2, nbSimulations = 10, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
+    integer:: length = 0
+    real(8) :: dt = 10.
     real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24] !, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24]
     real(8), dimension(nbCorps, 4) :: X
-    character(100) :: current
+    logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
+    character(100) :: current, current_v, command
+    character(len=*), parameter::  format='csv'
+    integer :: status
 
+    
     open(1, file="Triangle.csv", action='readwrite', status='replace')
     close(1)
+    open(6, file="TriangleV.csv", action='readwrite', status='replace')
+    close(6)
+
     
     do sim = 1, nbSimulations
+        
         X(1,1) = 0; X(1,2) = 0; X(1,3) = 0; X(1,4) = 0
         X(2,1) = 57.909e9+(sim-1)*5e8; X(2,2) = 0; X(2,3) = 0; X(2,4) = 47.36e3
         ! X(3,1) = 108.209e9; X(3,2) = 0; X(3,3) = 0; X(3,4) = 35.02e3
@@ -20,22 +29,43 @@ program Triangle
         ! X(8,1) = 2872.463e9; X(8,2) = 0; X(8,3) = 0; X(8,4) = 6.80e3
         ! X(9,1) = 4495.060e9; X(9,2) = 0; X(9,3) = 0; X(9,4) = 5.43e3
 
-        call Simulation2D(X, M, nbCorps, Nstep, dt, .true., 'csv', .false., .false.)
-
+        call Simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel, wvelocity)
+        
         open(2, file="Triangle.csv", action='readwrite', position='append')
         open(3, file="bodies_movement2D.csv", action='read')
-        do line = 1, Nstep
+       
+        do line = 0, Nstep-1
             read(3, '(A)') current
-            write(2, '(A)') current
+            if (mod(line,pasCalcul)==0) then
+                length=length+1
+                write(2, '(A)') current
+            endif
         end do
         close(3)
         close(2)
-    end do
 
-    call system("python csv_healer.py")
+
+        open(4, file="TriangleV.csv", action='readwrite', position='append')
+        open(5, file="v.csv", action='read')
+       
+        do line2 = 0, Nstep-1
+            read(5, '(A)') current_v
+            if (mod(line2,pasCalcul)==0) then
+                write(4, '(A)') current_v
+            endif
+        end do
+        close(5)
+        close(4)
+    enddo
+
+
+    write(command, '(A,I0)') "python csv_healer.py ", nbSimulations
+    call execute_command_line(command, wait=.true., exitstat=status)
+    
+    !call system("python csv_healer.py")
     ! call system("python3 Animation2D.py") 
 
-    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt)
+    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
 
 end program Triangle
 

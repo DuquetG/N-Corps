@@ -5,7 +5,7 @@ module Constant
     real(8):: G=6.67430*1e-11, eps=1e5, tolerance=1e25
 end module Constant
 
-subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel)
+subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel, wvelocity)
     use constant
 
     implicit none
@@ -16,10 +16,11 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
     logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
     logical, intent(in):: wviriel                       !boolean, if wviriel=.true., the program will output the mean energies to verify the Virial theorem
+    logical, intent(in):: wvelocity                     !boolean, if wvelocities=.true., the program will output the velocities     
     character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
 
 
-    integer:: i, io_status, a, b
+    integer:: i, io_status, a, b, u, v
     Real(8):: t=0, ecin, epot, ecinmoy=0, epotmoy=0
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
@@ -28,6 +29,7 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     open(3, file='energy.csv',iostat=io_status)
     open(4, file='energy.dat',iostat=io_status)
     open(5, file='viriel.csv',iostat=io_status)
+    open(6, file='v.csv',iostat=io_status)
 
     if (format/='csv' .and. format/='dat') then
         write(*,*) 'Le format de sortie doit être .dat ou .csv'
@@ -53,6 +55,11 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
             if (format=='dat') then
                 write(2,*) ((X(b, a), a = 1, 2), b=1,nbCorps)
             endif 
+
+            if (wvelocity) then
+                write(6, '(*(G0.6,:,";"))', advance='no') ((X(v, u), u = 3, 4), v=1,nbCorps)
+                write(6,*)
+            endif
 
         endif
 
@@ -88,6 +95,7 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     close(3)
     close(4)
     close(5)
+    close(6)
 
 end subroutine simulation2D 
 

@@ -1,11 +1,11 @@
 program DataCreation2D
     implicit none
-    integer, parameter:: Nstep=1000000 !number of steps considered for the simulation
-    real(8), parameter:: dt=10000.      !time step
+    integer, parameter:: Nstep=100000 !number of steps considered for the simulation
+    real(8):: dt=10000.      !time step
     integer, parameter:: dim=2         !number of dimension for the problem (currently only support dim=2)
     integer, parameter:: d=2*dim
-    logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true.
-    character(len=*), parameter::  format='dat'
+    logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
+    character(len=*), parameter::  format='csv'
 
     !Initialize position and velocity
     integer :: nbCorps, io_status
@@ -52,7 +52,7 @@ program DataCreation2D
    
     close(20)
 
-    call simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel)
+    call simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel, wvelocity)
 
 end program DataCreation2D
 
