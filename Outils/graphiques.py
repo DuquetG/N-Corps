@@ -41,7 +41,17 @@ def plot_mean_energies():
     plt.ylabel("<E>")
     plt.show()
 
-#Graphique de la distance entre 2 masses en fonction du temps (on devrait avoir une courbe exponentielle)
+#Graphique du Viriel
+def plot_viriel():
+    data = pd.read_csv("CSVs/viriel.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
+    data=data.to_numpy()
+    for i in range(0,math.floor(data.shape[1]-1)):
+        plt.plot(data[:,-1],data[:,0]/data[:,1])
+    plt.title('Rapport du Viriel au fil du temps')
+    plt.xlabel("t")
+    #plt.ylabel("")
+    plt.show()
+
 
 #Graphique de l'exposant de Lyapunov
 def plot_Lyapunov():
@@ -73,6 +83,9 @@ def plot_Lyapunov_time():
     plt.ylabel("τ")
     plt.legend((legende))
 #Exécution des graphiques
-
+plot_energy()
+plt.show()
+plot_viriel()
+plt.show()
 plot_Lyapunov()
 plt.show()

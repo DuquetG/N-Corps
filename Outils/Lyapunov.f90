@@ -3,7 +3,7 @@
 subroutine Lyapunov(nb_simulations, Nstep, nbCorps, chosen_mass, dt, length)
 implicit none
     integer, intent(in) :: nb_simulations, Nstep, nbCorps, chosen_mass, length
-    integer :: line, k, lol, lmfao, zoinks,l
+    integer :: line, k, lol, lmfao, zoinks,l, m
     real(8), allocatable :: X(:,:)
     real(8), allocatable :: Xstep(:), Vstep(:), delta_zeros(:), delta_tees(:), lyp(:)
     real(8) :: temps, dt
@@ -25,8 +25,13 @@ implicit none
     read(1,*) (Xstep(k), k = 1, nbCorps * 2 * nb_simulations)
     read(3,*) (Vstep(k), l = 1, nbCorps * 2 * nb_simulations)
     do lol = 1, nb_simulations
+
+        do m=1,nbCorps
+
+        enddo
+
         delta_zeros(lol) = sqrt((Xstep(nbCorps*2*lol+chosen_mass)-Xstep(chosen_mass))**2 &
-                                 + (Xstep(nbCorps*2*lol+chosen_mass+1)-Xstep(chosen_mass+1))**2&
+                                 + (Xstep(nbCorps*2*lol+chosen_mass+1)-Xstep(chosen_mass+1))**2 &
                                  +(Vstep(nbCorps*2*lol+chosen_mass)-Vstep(chosen_mass))**2 &
                                  + (Vstep(nbCorps*2*lol+chosen_mass+1)-Vstep(chosen_mass+1))**2)
     enddo

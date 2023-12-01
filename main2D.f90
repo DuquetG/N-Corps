@@ -1,8 +1,8 @@
 program main2D
-    integer, parameter :: nbCorps = 2, Nstep = 30000, chosen_mass = 2
-    integer :: sim, line, line2, nbSimulations = 30, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
+    integer, parameter :: nbCorps = 2, Nstep = 100000, chosen_mass = 2
+    integer :: sim, line, line2, nbSimulations = 5, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
     integer:: length = 0
-    real(8) :: dt = 50.
+    real(8) :: dt = 1000.
     real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24] !, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24]
     real(8), dimension(nbCorps, 4) :: X
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
@@ -59,14 +59,14 @@ program main2D
     enddo
 
 
-    write(command, '(A,I0)') "python3 Outils/csv_healer.py ", nbSimulations
+    write(command, '(A,I0)') "python Outils/csv_healer.py ", nbSimulations
     call execute_command_line(command, wait=.true., exitstat=status)
     
-    call system("python3 Outils/Animation2D.py")
+    !call system("python Outils/Animation2D.py")
 
-    ! call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
+    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
     
-    ! call system("python3 Outils/graphiques.py")
+    call system("python Outils/graphiques.py")
 
 end program main2D
 
