@@ -1,6 +1,6 @@
 module Constant
     implicit none
-    real(8):: G=0.00001 !G=6.67430*1e-11
+    real(8):: G=0.00001, eps=1e5, tolerance=1e25 
 end module Constant
 
 
@@ -24,13 +24,13 @@ subroutine Simulation3D(X, M, nbCorps, Nstep, dt)
     end if
 
     do i=0, Nstep
-        call rk4(t,X,dt,nbCorps,M,deriv)
+        call rk4(t,X,dt,nbCorps,M,deriv,6)
+        !call adaptativerk4(t,X,dt,nbCorps,M,tolerance,6)
         write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2, 3), b=1,nbCorps)
         
         if (mod(i,50)==0) then
 
-            call distance(nbCorps,X,Xdis)
-            call energy(nbCorps,M,X,Xdis,ecin,epot)
+            call energy(nbCorps,M,X,ecin,epot)
             write(2,*) ecin, epot, ecin+epot
 
         end if
@@ -40,14 +40,14 @@ subroutine Simulation3D(X, M, nbCorps, Nstep, dt)
     close(2)
 end subroutine Simulation3D
 
-subroutine energy(N,M,X,Xdis,ecin,epot)
+subroutine energy(N,M,X,ecin,epot)
     use Constant
     implicit none
     integer :: N
     real(8), dimension(N,6), intent(in):: X
     real(8), dimension(N) :: M
-    real(8), dimension(N,N), intent(in):: Xdis
     real(8), intent(out):: epot, ecin
+    real(8):: distance
     integer:: i,j
 
     ecin=0
@@ -55,8 +55,9 @@ subroutine energy(N,M,X,Xdis,ecin,epot)
 
     do i=1, N
         ecin=ecin+0.5*M(i)*(X(i,4)**2+X(i,5)**2+X(i,6)**2) !kinetic energy
-        do j=i+1, N      
-            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
+        do j=i+1, N 
+            distance=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2+(X(i,3)-X(j,3))**2)
+            epot=epot-G*M(i)*M(j)/distance                                           !potential energy
         enddo
     enddo
 
@@ -70,11 +71,10 @@ subroutine deriv(t,nbCorps,M,X,dX)
     real(8), dimension(nbCorps) :: M
     real(8), dimension(Nbcorps,6), intent(in):: X
     real(8), dimension(Nbcorps,6), intent(out)::dX
-    real(8), dimension(Nbcorps,Nbcorps):: xforce, yforce, zforce, Xdis
+    real(8), dimension(Nbcorps,Nbcorps):: xforce, yforce, zforce
     integer:: i,j
     
-    call distance(nbCorps,X,Xdis)
-    call force(nbCorps,M,X,Xdis,xforce,yforce,zforce)
+    call force(nbCorps,M,X,xforce,yforce,zforce)
 
     do i=1, Nbcorps
         dX(i,1)=X(i,4)
@@ -110,48 +110,31 @@ subroutine distance(nbCorps,X,Xdis)
 
 end subroutine distance
 
-subroutine force(nbCorps,M,X,Xdis,xforce,yforce,zforce)
+subroutine force(nbCorps,M,X,xforce,yforce,zforce)
     use Constant
     implicit none
     integer, intent(in):: nbCorps
     real(8), dimension(nbCorps,6), intent(in):: X
     real(8), dimension(nbCorps) :: M
-    real(8), dimension(nbCorps,nbCorps), intent(in):: Xdis
+    real(8)::distance
     real(8), dimension(nbCorps,nbCorps), intent(out):: xforce, yforce, zforce
     integer:: i,j
     do i=1, nbCorps
-        do j=i, NbCorps
-            
-            if (i==j) then
-                xforce(i,j)=0
-                yforce(i,j)=0
-            else if (i/=j) then
+        do j=i+1, NbCorps
 
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3
-            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/Xdis(j,i)**3
-            zforce(i,j)=G*M(i)*M(j)*(X(j,3)-X(i,3))/Xdis(j,i)**3
+            distance=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2+(X(i,3)-X(j,3))**2) 
+
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/distance**3
+            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/distance**3
+            zforce(i,j)=G*M(i)*M(j)*(X(j,3)-X(i,3))/distance**3
 
             xforce(j,i)=-xforce(i,j)
             yforce(j,i)=-yforce(i,j)
             zforce(j,i)=-zforce(i,j)
-            end if
+
         enddo
     enddo
 
 end subroutine
 
-subroutine rk4(t,X,dt,N,M,deriv)
-    implicit none
-    integer , intent (in) :: N
-    real (8) , intent (in) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,6) , intent ( inout ) :: X
-    real (8) :: ddt
-    real (8) , dimension (N,6) :: Xp , k1 , k2 , k3 , k4
-    ddt = 0.5* dt
-    call deriv (t,N,M,X,k1); Xp = X + ddt *k1
-    call deriv (t+ddt,N,M,Xp,k2); Xp = X + ddt*k2
-    call deriv (t+ddt,N,M,Xp,k3); Xp = X + dt*k3
-    call deriv (t+dt,N,M,Xp ,k4); X = X + dt *( k1 + 2.0* k2 + 2.0* k3 + k4 )/6.0
-
-end subroutine rk4
+include 'integrator.f90'

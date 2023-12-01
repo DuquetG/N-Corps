@@ -1,16 +1,27 @@
+!This code simulate the evolution of a N-Body gravitationnal system. Initial conditions are required
+
+
+
 
 !Constantes fondamentales
 module Constant
     implicit none
-    real(8):: G=6.67430*1e-11, eps=1e5, tolerance=1e25
+    real(8):: G=6.67430*1e-11       !Gravitationnal constant          
+    real(8):: eps=1e5               !softening lenght
+    real(8):: tolerance=1e25        !error tolerance for total energy of the system. Used for the Adaptative time step 
 end module Constant
+
+
+!Subroutine designed for simulating a 2D N-Body gravitational system. The initial conditions of the problem are specified
+!in the X matrix, which undergoes evolution over time. If desired, the trajectories of bodies, along with energy and 
+!velocities, can be outputted in 'csv' or 'dat' files.
 
 subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel, wvelocity)
     use constant
 
     implicit none
     integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
-    Real(8), intent(inout):: dt                            !time step
+    Real(8), intent(inout):: dt                         !time step
     Real(8), intent(in), dimension(nbCorps):: M         !M(i)= mass of the body 'i'
     Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
@@ -22,7 +33,6 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
 
     integer:: i, io_status, a, b, u, v
     Real(8):: t=0, ecin, epot, ecinmoy=0, epotmoy=0
-    Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
     open(1, file='CSVs/positions_2D.csv',iostat=io_status)
     open(2, file='CSVs/positions_2D.dat',iostat=io_status)
@@ -41,9 +51,14 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
         stop
     end if
     do i=0, Nstep
+         
+        !advance the positions and velocities of the system for a time step dt
 
-        ! call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
-        call rk4(t,X,dt,Nbcorps,M,deriv)
+        ! call adaptativerk4(t,X,dt,Nbcorps,M,tolerance,4) !-->Adaptative time step Runge-Kutta integration 
+        call rk4(t,X,dt,Nbcorps,M,deriv,4)                 !-->Runge-Kutta integration
+        ! call euler(t,X,dt,N,M,deriv,d)                   !-->Euler integration
+
+
 
         if (wtraj) then
 
@@ -106,7 +121,7 @@ subroutine energy(N,M,X,ecin,epot)
     integer :: N
     real(8), dimension(N,4), intent(in):: X
     real(8), dimension(N) :: M
-    real(8), intent(out):: epot, ecin
+    real(8), intent(out):: epot, ecin     !epot:potential energy, ecin: kinetic energy
     integer:: i,j
 
     ecin=0
@@ -130,7 +145,7 @@ subroutine deriv(t,nbCorps,M,X,dX)
     real(8), dimension(nbCorps,4), intent(in):: X
     real(8), dimension(nbCorps) :: M
     real(8), dimension(nbCorps,4), intent(out)::dX !X's derivative
-    real(8), dimension(nbCorps,nbCorps):: xforce, yforce, Xdis
+    real(8), dimension(nbCorps,nbCorps):: xforce, yforce
    
     integer:: i,j
     
@@ -151,25 +166,8 @@ subroutine deriv(t,nbCorps,M,X,dX)
 
 end subroutine deriv
 
-!Calculate de Xdis matrix where Xdis(i,j) stands for 
-!the distance between the i and j bodies.
-subroutine distance(nbCorps,X,Xdis)
-    implicit none
-    integer, intent(in) :: nbCorps
-    real(8), dimension(nbCorps,4), intent(in):: X
-    real(8), dimension(nbCorps,nbCorps), intent(out):: Xdis
-    integer:: i,j
 
-    do i=1, nbCorps 
-        do j=i, nbCorps
-            Xdis(i,j)=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2) 
-            Xdis(j,i)=Xdis(i,j)
-        enddo
-    enddo
-
-end subroutine distance
-
-!Calculate the force between each body.
+!Calculate the force between each body. xforce(i,j): the force of j applied on i.
 subroutine force(nbCorps,M,X,xforce,yforce)
     use Constant
     implicit none
@@ -181,93 +179,19 @@ subroutine force(nbCorps,M,X,xforce,yforce)
     real(8):: Xdis
     integer:: i,j
     do i=1, nbCorps
-        do j=i, nbCorps
+        do j=i+1, nbCorps
             
-            if (i==j) then
-                xforce(i,j)=0  !the force of the body applied to itself is null
-                yforce(i,j)=0  
-            else if (i/=j) then
             Xdis=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)
             xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/((Xdis**2+eps**2)**(1.5)) !newton's inverse-square law
             yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/((Xdis**2+eps**2)**(1.5))
 
-            xforce(j,i)=-xforce(i,j) 
+            xforce(j,i)=-xforce(i,j)            !f_ij=-f_ji
             yforce(j,i)=-yforce(i,j)
-            end if
+
         enddo
     enddo
 
 end subroutine
 
-subroutine rk4(t,X,dt,N,M,deriv)
-    implicit none
-    integer , intent (in) :: N
-    real (8) , intent (inout) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,4) , intent ( inout ) :: X
-    real (8) :: ddt
-    real (8) , dimension (N,4) :: Xp , k1 , k2 , k3 , k4
-    ddt = 0.5* dt
-    call deriv (t,N,M,X,k1); Xp = X + ddt*k1
-    call deriv (t+ddt,N,M,Xp,k2); Xp = X + ddt*k2
-    call deriv (t+ddt,N,M,Xp ,k3); Xp = X + dt*k3
-    call deriv (t+dt,N,M,Xp ,k4); X = X+dt*(k1+2.0*k2+2.0*k3+k4)/6.0
-    t=t+dt
-end subroutine rk4
-
-subroutine euler(t,X,dt,N,M,deriv)
-    implicit none
-    integer , intent (in) :: N
-    real (8) , intent (in) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,4) , intent (inout) :: X
-    real (8) , dimension (N,4) :: dX
-    call deriv (t,N,M,X,dX)
-    X= X+dt*dX
-end subroutine euler
-
-subroutine velocity_verlet (t,X,dt,N,M,deriv)
-    implicit none
-    integer , intent (in) :: n
-    real (8) , intent (in) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,4) , intent ( inout ) :: X
-    real (8) :: ddt
-    real (8) , dimension (N,4) :: dX
-        if (mod (n ,2) .ne. 0) write (*,*) 'WARNING : N should be even for Verlet'
-        call deriv (t,n,M,X,dX)
-        X(1:N/2,:) = X(1:N/2,:) + dt* dX(1:N/2,:)
-        call deriv (t,n,M,X,dX)
-        X(N /2+1: N, :) = X(N /2+1: N, :) + 0.5* dt* dX(N/2+1: N, :)
-        X(N /2+1: N, :) = X(N /2+1: N, :) + 0.5* dt* dX(N /2+1: N, :)
-end subroutine velocity_verlet
-
-subroutine adaptativerk4(t,X,dt,N,M,tolerance)
-    implicit none
-    integer , intent (in) :: N
-    real (8) , intent (inout) :: t, dt
-    real(8), dimension(N), intent(in) :: M
-    real (8) , dimension (N,4) , intent ( inout ) :: X
-    real (8), intent(in) :: tolerance
-    real (8), dimension(N,4):: Xnew
-    real (8)::  etot1, etot2, epot, ecin
-    external:: deriv
-
-    Xnew=X
-    call energy(N,M,X,ecin,epot)
-    etot1=epot+ecin
-    Call rk4(t,Xnew,dt,N,M,deriv)
-    call energy(N,M,Xnew,ecin,epot)
-    etot2=epot+ecin
-
-    if(abs(etot2-etot1)<=tolerance) then
-        dt=dt*1.2
-    else 
-        dt=dt/1.2
-    end if
-    !write(*,*) dt
-    X=Xnew
-    !write(*,*) t
-    t=t+dt
-end subroutine adaptativerk4
+include 'Integrator.f90'
 
