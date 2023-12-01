@@ -1,33 +1,28 @@
-
 !Constantes fondamentales
 module Constant
     implicit none
-    real(8):: G=6.67430*1e-11, eps=1e5, tolerance=1e25
+    real(8):: G=6.67430*1e-11
 end module Constant
 
-subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wviriel)
-    use constant
-
+subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy,integrator)
     implicit none
     integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
-    Real(8), intent(inout):: dt                         !time step
+    Real(8), intent(in):: dt                            !time step
     Real(8), intent(in), dimension(nbCorps):: M         !M(i)= mass of the body 'i'
     Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
     logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
     logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
-    logical, intent(in):: wviriel                       !boolean, if wviriel=.true., the program will output the mean energies to verify the Virial theorem
     character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
-
+    character(len=*), intent(in):: integrator           !integration methode, 'euler', 'rk4', 
 
     integer:: i, io_status, a, b
-    Real(8):: t=0, ecin, epot, ecinmoy=0, epotmoy=0
+    Real(8):: t, ecin, epot
     Real(8), dimension(nbCorps,nbCorps):: Xdis
     external:: deriv 
+    write(*,*) format
     open(1, file='bodies_movement2D.csv',iostat=io_status)
-    open(2, file='bodies_movement2D.dat',iostat=io_status)
-    open(3, file='energy.csv',iostat=io_status)
-    open(4, file='energy.dat',iostat=io_status)
-    open(5, file='viriel.csv',iostat=io_status)
+    open(2, file='bodies_movement2D.dat')
+    open(3, file='energy.dat')
 
     if (format/='csv' .and. format/='dat') then
         write(*,*) 'Le format de sortie doit être .dat ou .csv'
@@ -38,16 +33,14 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
         write(*,*) 'Erreur lors de l''ouverture du fichier.'
         stop
     end if
-    do i=0, Nstep
 
-        call adaptativerk4(t,X,dt,Nbcorps,M,tolerance,4)
-        !call rk4(t,X,dt,Nbcorps,M,deriv,4)
+    do i=0, Nstep
+        call rk4(t,X,dt,nbCorps,M,deriv)
 
         if (wtraj) then
 
             if (format=='csv') then
                 write(1, '(*(G0.6,:,";"))', advance='no') ((X(b, a), a = 1, 2), b=1,nbCorps)
-                write(1,*)
             endif
 
             if (format=='dat') then
@@ -58,46 +51,26 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
 
         if (wenergy) then
 
-            call energy(nbCorps,M,X,ecin,epot)
-
-            if (format=='csv') then
-                write(3, '(*(G0.6,:,";"))', advance='no') ecin, epot, ecin+epot, t
-                write(3,*)
-
-            endif
-
-            if (format=='dat') then
-                write(4,*) ecin, epot, ecin+epot, t
-            endif 
-
-
-            if (wviriel) then
-                ecinmoy=(ecinmoy*(i)+ecin)/(i+1)
-                epotmoy=(epotmoy*(i)+epot)/(i+1)
-                write(5, '(*(G0.6,:,";"))', advance='no') ecinmoy, epotmoy, i*dt
-                write(5,*)
-
-            endif
-            
+            call distance(nbCorps,X,Xdis)
+            call energy(nbCorps,M,X,Xdis,ecin,epot)
+            write(3,*) ecin, epot, ecin+epot
 
         end if
     end do
 
     close(1)
     close(2)
-    close(3)
-    close(4)
-    close(5)
 
 end subroutine simulation2D 
 
 !Calculate the energy of the system
-subroutine energy(N,M,X,ecin,epot)
+subroutine energy(N,M,X,Xdis,ecin,epot)
     use Constant
     implicit none
     integer :: N
     real(8), dimension(N,4), intent(in):: X
     real(8), dimension(N) :: M
+    real(8), dimension(N,N), intent(in):: Xdis
     real(8), intent(out):: epot, ecin
     integer:: i,j
 
@@ -107,7 +80,7 @@ subroutine energy(N,M,X,ecin,epot)
     do i=1, N
         ecin=ecin+0.5*M(i)*(X(i,3)**2+X(i,4)**2) !kinetic energy
         do j=i+1, N      
-            epot=epot-G*M(i)*M(j)/sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)     !potential energy
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
         enddo
     enddo
 
@@ -126,7 +99,8 @@ subroutine deriv(t,nbCorps,M,X,dX)
    
     integer:: i,j
     
-    call force(nbCorps,M,X,xforce,yforce)
+    call distance(nbCorps,X,Xdis)
+    call force(nbCorps,M,X,Xdis,xforce,yforce)
 
     do i=1, nbCorps
         dX(i,1)=X(i,3) !dx/dt=v_x
@@ -162,29 +136,33 @@ subroutine distance(nbCorps,X,Xdis)
 end subroutine distance
 
 !Calculate the force between each body.
-subroutine force(nbCorps,M,X,xforce,yforce)
+subroutine force(nbCorps,M,X,Xdis,xforce,yforce)
     use Constant
     implicit none
     integer, intent(in) :: nbCorps
     real(8), dimension(nbCorps), intent(in) :: M
     real(8), dimension(nbCorps,4), intent(in):: X
+    real(8), dimension(nbCorps,nbCorps), intent(in):: Xdis
     real(8), dimension(nbCorps,nbCorps), intent(out):: xforce
     real(8), dimension(nbCorps,nbCorps), intent(out):: yforce
-    real(8):: Xdis
     integer:: i,j
     do i=1, nbCorps
-        do j=i+1, nbCorps
+        do j=i, nbCorps
             
-            Xdis=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/((Xdis**2+eps**2)**(1.5)) !newton's inverse-square law
-            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/((Xdis**2+eps**2)**(1.5))
+            if (i==j) then
+                xforce(i,j)=0  !the force of the body applied to itself is null
+                yforce(i,j)=0  
+            else if (i/=j) then
+
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/Xdis(j,i)**3 !newton's inverse-square law
+            yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/Xdis(j,i)**3
 
             xforce(j,i)=-xforce(i,j) 
             yforce(j,i)=-yforce(i,j)
-
+            end if
         enddo
     enddo
 
 end subroutine
 
-include 'Integrator.f90'
+include 'integrateur.f90'
