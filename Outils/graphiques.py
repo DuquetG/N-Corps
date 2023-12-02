@@ -55,7 +55,7 @@ def plot_viriel():
 
 #Graphique de l'exposant de Lyapunov
 def plot_Lyapunov():
-    data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 10 != 0)
+    data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
     legende = []
     for i in range(1,math.floor(data.shape[1])):

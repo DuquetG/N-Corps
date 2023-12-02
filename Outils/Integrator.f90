@@ -67,6 +67,6 @@ subroutine adaptativerk4(t,X,dt,N,M,tolerance)
     !write(*,*) dt
     X=Xnew
     !write(*,*) t
-    t=t+dt
+    
 end subroutine adaptativerk4
 

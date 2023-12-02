@@ -1,9 +1,10 @@
 program main2D
-    integer, parameter :: nbCorps = 2, Nstep = 10000, chosen_mass = 2
-    integer :: sim, line, line2, nbSimulations = 10, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
+    integer, parameter :: nbCorps = 4, Nstep = 10000, chosen_mass = 2
+    integer :: sim, line, line2, nbSimulations = 3, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
     integer:: length = 0
-    real(8) :: dt = 100.
-    real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24] !, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24, 568.34e24, 86.813e24, 102.413e24]
+    real(8) :: dt = 1000.
+    real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24, 4.8675e24, 5.9724e24] !, 0.64171e24, 1898.19e24, 568.34e24, &
+    !86.813e24, 102.413e24]
     real(8), dimension(nbCorps, 4) :: X
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
     character(100) :: current, current_v, command
@@ -21,8 +22,8 @@ program main2D
         
         X(1,1) = 0; X(1,2) = 0; X(1,3) = 0; X(1,4) = 0
         X(2,1) = 57.909e9+(sim-1)*5e8; X(2,2) = 0; X(2,3) = 0; X(2,4) = 47.36e3
-        ! X(3,1) = 108.209e9; X(3,2) = 0; X(3,3) = 0; X(3,4) = 35.02e3
-        ! X(4,1) = 149.596e9; X(4,2) = 0; X(4,3) = 0; X(4,4) = 29.78e3
+        X(3,1) = 108.209e9; X(3,2) = 0; X(3,3) = 0; X(3,4) = 35.02e3
+        X(4,1) = 149.596e9; X(4,2) = 0; X(4,3) = 0; X(4,4) = 29.78e3
         ! X(5,1) = 227.923e9; X(5,2) = 0; X(5,3) = 0; X(5,4) = 24.07e3
         ! X(6,1) = 778.570e9; X(6,2) = 0; X(6,3) = 0; X(6,4) = 13e3
         ! X(7,1) = 1433.529e9; X(7,2) = 0; X(7,3) = 0; X(7,4) = 9.68e3
@@ -63,9 +64,9 @@ program main2D
     write(command, '(A,I0)') "python Outils/csv_healer.py ", nbSimulations
     call execute_command_line(command, wait=.true., exitstat=status)
     
-    !call system("python Outils/Animation2D.py")
+    call system("python Outils/Animation2D.py")
 
-    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length)
+    call Lyapunov(nbSimulations, Nstep, nbCorps, chosen_mass, dt, length, pasCalcul)
     
     call system("python Outils/graphiques.py")
 

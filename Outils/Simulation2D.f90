@@ -42,8 +42,8 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     end if
     do i=0, Nstep
 
-        call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
-        !call rk4(t,X,dt,Nbcorps,M,deriv)
+        !call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
+        call rk4(t,X,dt,Nbcorps,M,deriv)
 
         if (wtraj) then
 
