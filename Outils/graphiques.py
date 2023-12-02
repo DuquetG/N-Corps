@@ -70,7 +70,7 @@ def plot_Lyapunov():
 
 #Graphique temps de Lyapunov
 def plot_Lyapunov_time():
-    data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 10 != 0)
+    data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
     legende = []
     for i in range(1,math.floor(data.shape[1])):
@@ -83,9 +83,9 @@ def plot_Lyapunov_time():
     plt.ylabel("τ")
     plt.legend((legende))
 #Exécution des graphiques
-plot_energy()
-plt.show()
-plot_viriel()
-plt.show()
+# plot_energy()
+# plt.show()
+# plot_viriel()
+# plt.show()
 plot_Lyapunov()
 plt.show()
