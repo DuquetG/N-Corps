@@ -52,6 +52,20 @@ def plot_viriel():
     #plt.ylabel("")
     plt.show()
 
+#Graphique de la somme de toutes les distances entre deux masses pour deux simulations différentes
+def plot_massDistances():
+    data = pd.read_csv("CSVs/massDistances.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
+    data=data.to_numpy()
+    legende = []
+    for i in range(1,math.floor(data.shape[1])):
+        legende.append(f"Écart{i}")
+        plt.plot(data[:,0],data[:,i])
+    plt.axhline(y=0, color='black', linestyle='--', label='y=0')
+    plt.plot()
+    plt.title('Distance entre deux simulations au fil du temps')
+    plt.xlabel("t")
+    plt.ylabel("")
+    plt.legend((legende))
 
 #Graphique de l'exposant de Lyapunov
 def plot_Lyapunov():
@@ -66,26 +80,29 @@ def plot_Lyapunov():
     plt.title('Exposant de Lyapunov au fil du temps')
     plt.xlabel("t")
     plt.ylabel("λ")
+    
     plt.legend((legende))
 
 #Graphique temps de Lyapunov
 def plot_Lyapunov_time():
     data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
-    legende = []
+    legende2 = []
     for i in range(1,math.floor(data.shape[1])):
-        legende.append(f"τ{i}")
+        legende2.append(f"τ{i}")
         plt.plot(data[:,0],1/data[:,i])
     #plt.axhline(y=0, color='black', linestyle='--', label='y=0')
     plt.plot()
     plt.title('Temps de Lyapunov au fil du temps')
     plt.xlabel("t")
     plt.ylabel("τ")
-    plt.legend((legende))
+    plt.legend((legende2))
 #Exécution des graphiques
 # plot_energy()
 # plt.show()
 # plot_viriel()
 # plt.show()
 plot_Lyapunov()
+plt.show()
+plot_massDistances()
 plt.show()

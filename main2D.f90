@@ -1,10 +1,10 @@
 program main2D
-    integer, parameter :: nbCorps = 2, Nstep = 30000, chosen_mass = 2
-    integer :: sim, line, line2, nbSimulations = 5, pasCalcul=1 !nombre de pas sautés à chaque calcul de Lyapunov
+    integer, parameter :: nbCorps = 2, Nstep = 100000, chosen_mass = 2
+    integer :: sim, line, line2, nbSimulations = 10, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
     integer:: length = 0
     real(8) :: dt = 10000.
-    real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24]!, 4.8675e24]!, 5.9724e24, 0.64171e24, 1898.19e24, 568.34e24, &
-    !86.813e24, 102.413e24]
+    real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24]!, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24]!, 568.34e24, &
+    !86.813e24, 102.413e24] !
     real(8), dimension(nbCorps, 4) :: X
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
     character(1000) :: current, current_v, command
