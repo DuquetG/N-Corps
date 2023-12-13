@@ -6,6 +6,7 @@ import math
 # Charger le fichier CSV avec pandas
 #data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
 #data=data.to_numpy()
+
 #Graphique des positions dans le temps, avec code couleur pour chaque masse
 def plot_positions():
     data = pd.read_csv("CSVs/positions_2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
@@ -27,8 +28,6 @@ def plot_energy():
     plt.xlabel("t")
     plt.ylabel("E")
     plt.show()
-
-
 
 #Graphique de l'énergie potentielle et cinétique moyenne en fonction du temps
 def plot_mean_energies():
@@ -97,6 +96,7 @@ def plot_Lyapunov_time():
     plt.xlabel("t")
     plt.ylabel("τ")
     plt.legend((legende2))
+
 #Exécution des graphiques
 # plot_energy()
 # plt.show()
