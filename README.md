@@ -18,7 +18,7 @@ Collaborateurs:
 ```
 python -m venv venv
 ```
-** À noter ici que si la commande `python` ne fonctionne pas, il se peut que l'utilisation de la commande `python3` corrige le problème. Cela est souvent du au fait que deux versions de python sont installées simultanément sur la console.
+** À noter ici que si la commande `python` ne fonctionne pas, il se peut que l'utilisation de la commande `python3` corrige le problème. Cela est souvent du au fait que deux versions de python sont installées simultanément sur la console. Si c'est le cas, veillez à ce que dans le fichier `main2D.f90` l'appel des commandes soient modifiées en conséquence (lignes 64 et 71).
 
 ### Activer l'environnement virtuel
 __Pour Linux/macOS :__
