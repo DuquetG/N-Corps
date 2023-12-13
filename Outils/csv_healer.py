@@ -2,6 +2,8 @@ import pandas as pd
 import csv
 import sys
 
+# Cette fonction permet de changer le format d'un fichier .csv afin qu'il puisse être lisible par les les programmes Animation2D.py et Lyapunov.f90
+
 def heal(in_filename,out_filename,nb_simulations):
 
     #nb_simulations = 3
