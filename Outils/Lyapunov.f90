@@ -1,6 +1,6 @@
+! Cette sous fonction mesure l'exposant de Lyapunov du système pour chaque simulation
 
-!This subroutine calculates the Lyapunov exponents 
-subroutine Lyapunov(nb_simulations, Nstep, nbCorps, mass ,chosen_mass, dt, length, pasCalcul)
+subroutine Lyapunov(nb_simulations, Nstep, nbCorps, mass, chosen_mass, dt, length, pasCalcul)
 implicit none
     integer, intent(in) :: nb_simulations, Nstep, nbCorps, chosen_mass, length, pasCalcul
     real(8), dimension(nbCorps), intent(in) :: mass
@@ -28,7 +28,7 @@ implicit none
     read(1,*) (Xstep(k), k = 1, nbCorps * 2 * nb_simulations)
     read(3,*) (Vstep(l), l = 1, nbCorps * 2 * nb_simulations)
   
-    !Calculating delta zero
+    ! Calculer le delta zero
     do i = 1, nb_simulations-1
         
         m=0
@@ -44,18 +44,18 @@ implicit none
     enddo
 
     
-    !Calculating the Lyapunov exponent
+    ! Calculer l'exposant de Lyapunov
     do line = 1, length/nb_simulations-1
         read(1,*) (Xstep(k), k = 1, nbCorps * 2 * nb_simulations)
         read(3,*) (Vstep(l), l = 1, nbCorps * 2 * nb_simulations)
         temps = line * dt * pasCalcul
-        !Computing the delta t
+        ! Calculer le delat t
         do j = 1, nb_simulations-1
             n=0
             del2=0
             dis=0
             vel=0
-            !Determining deltat squared
+            ! Calculer le delta t carré
             do n=1,nbCorps
                 dis=dis+(Xstep(nbCorps*2*j+2*n-1)-Xstep(2*n-1))**2 &
                 + (Xstep(nbCorps*2*j+2*n)-Xstep(2*n))**2
@@ -63,7 +63,7 @@ implicit none
                + ((Vstep(nbCorps*2*j+2*n)-Vstep(2*n)))**2
             enddo
             del2=vel+dis
-            !Calculating delta t
+            ! Calculer le delta t
             delta_tees(j) = sqrt(del2)
             log_dtees(j)=log(delta_tees(j)/delta_zeros(j))
             lyp(j) = (1/temps) * log_dtees(j)
