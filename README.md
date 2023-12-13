@@ -18,6 +18,7 @@ Collaborateurs:
 ```
 python -m venv venv
 ```
+** À noter ici que si la commande `python` ne fonctionne pas, il se peut que l'utilisation de la commande `python3` corrige le problème. Cela est souvent du au fait que deux versions de python sont installées simultanément sur la console.
 
 ### Activer l'environnement virtuel
 __Pour Linux/macOS :__
