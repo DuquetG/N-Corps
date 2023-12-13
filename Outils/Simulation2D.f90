@@ -1,5 +1,8 @@
+! Ce code fait appel à la méthode d'intégration de Runge-Kutta du 4eme ordre 
+! afin de mesurer et inscrire dans un fichier les trajectoires et vitesses des masses d'un système à N-corps.
+! Il peut également fournir les variations d'énergie et les énergies moyennes du système.
 
-!Constantes fondamentales
+! Constantes fondamentales
 module Constant
     implicit none
     real(8):: G=6.67430*1e-11, eps=1e5, tolerance=1e25
@@ -9,15 +12,15 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     use constant
 
     implicit none
-    integer, intent(in):: nbCorps, Nstep                !Number of bodies/Number of steps for the simulation
-    Real(8), intent(inout):: dt                            !time step
-    Real(8), intent(in), dimension(nbCorps):: M         !M(i)= mass of the body 'i'
-    Real(8), intent(inout), dimension(nbCorps,4):: X    !Position/velocity matrix 
-    logical, intent(in):: wtraj                         !boolean, if traj='.true.' the program will output the trajectory of the bodies 
-    logical, intent(in):: wenergy                       !boolean, if energy='.true.' the program will output the energy fluctuation of the system
-    logical, intent(in):: wviriel                       !boolean, if wviriel=.true., the program will output the mean energies to verify the Virial theorem
-    logical, intent(in):: wvelocity                     !boolean, if wvelocities=.true., the program will output the velocities     
-    character(len=*), intent(in):: format               !trajectory's output format, 'csv' or 'dat'.
+    integer, intent(in):: nbCorps, Nstep                ! Nombre de corps, Nombre de pas pour la simulation
+    Real(8), intent(inout):: dt                         ! Pas de temps
+    Real(8), intent(in), dimension(nbCorps):: M         ! M(i) = masse du corps 'i'
+    Real(8), intent(inout), dimension(nbCorps,4):: X    ! Matrice position/vitesse
+    logical, intent(in):: wtraj                         ! Booléen, si traj='.true.' le programme inscrit les positions des corps dans le fichier de sortie
+    logical, intent(in):: wenergy                       ! Booléen, si energy='.true.' le programme inscrit les variations d'énergie du système
+    logical, intent(in):: wviriel                       ! Booléen, si wviriel=.true., le programme inscrit les énergies moyennes pour vérifier le théoreme du Viriel
+    logical, intent(in):: wvelocity                     ! Booléen, si wvelocities=.true., le programme inscrit les vitesses des corps dans le fichier de sortie
+    character(len=*), intent(in):: format               ! Format du fichier des positions et vitesses, '.csv' ou '.dat'
 
 
     integer:: i, io_status, a, b, u, v
@@ -42,7 +45,8 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
     end if
     do i=0, Nstep
 
-        !call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
+        ! Choix du type d'intégration
+        ! call adaptativerk4(t,X,dt,Nbcorps,M,tolerance)
         call rk4(t,X,dt,Nbcorps,M,deriv)
 
         if (wtraj) then
@@ -99,7 +103,7 @@ subroutine simulation2D(X, M, nbCorps, Nstep, dt, wtraj, format, wenergy, wvirie
 
 end subroutine simulation2D 
 
-!Calculate the energy of the system
+! Calcule l'énergie du système
 subroutine energy(N,M,X,ecin,epot)
     use Constant
     implicit none
@@ -121,7 +125,7 @@ subroutine energy(N,M,X,ecin,epot)
 
 end subroutine energy
 
-!Calculate the derivative dX of the X matrix
+! Calcule la dérivé dX de la matrice X
 subroutine deriv(t,nbCorps,M,X,dX)
     use Constant
     implicit none
@@ -142,7 +146,7 @@ subroutine deriv(t,nbCorps,M,X,dX)
         dX(i,3)=0
         dX(i,4)=0
         
-        !add all the forces applied for the N bodies
+        ! Ajoute toutes les forces appliquées pour les N-corps
         do j=1, nbCorps
             dX(i,3)=dX(i,3)+1/M(i)*xforce(i,j) !dv_x/dt=mi*a_x=G*mi*m1/ri1+G*mi*m2/ri2+...
             dX(i,4)=dX(i,4)+1/M(i)*yforce(i,j) !dv_y/dt=ma_y
@@ -151,8 +155,7 @@ subroutine deriv(t,nbCorps,M,X,dX)
 
 end subroutine deriv
 
-!Calculate de Xdis matrix where Xdis(i,j) stands for 
-!the distance between the i and j bodies.
+! Calcule la matrice Xdis dans laquelle Xdis(i,j) représente la distance entre les corps i et j
 subroutine distance(nbCorps,X,Xdis)
     implicit none
     integer, intent(in) :: nbCorps
@@ -169,7 +172,7 @@ subroutine distance(nbCorps,X,Xdis)
 
 end subroutine distance
 
-!Calculate the force between each body.
+! Calcule la force entre chaque corps
 subroutine force(nbCorps,M,X,xforce,yforce)
     use Constant
     implicit none
@@ -184,11 +187,11 @@ subroutine force(nbCorps,M,X,xforce,yforce)
         do j=i, nbCorps
             
             if (i==j) then
-                xforce(i,j)=0  !the force of the body applied to itself is null
+                xforce(i,j)=0  ! La force du corps appliquée à lui-même est nulle
                 yforce(i,j)=0  
             else if (i/=j) then
             Xdis=sqrt((X(i,1)-X(j,1))**2+(X(i,2)-X(j,2))**2)
-            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/((Xdis**2+eps**2)**(1.5)) !newton's inverse-square law
+            xforce(i,j)=G*M(i)*M(j)*(X(j,1)-X(i,1))/((Xdis**2+eps**2)**(1.5)) ! newton's inverse-square law
             yforce(i,j)=G*M(i)*M(j)*(X(j,2)-X(i,2))/((Xdis**2+eps**2)**(1.5))
 
             xforce(j,i)=-xforce(i,j) 
