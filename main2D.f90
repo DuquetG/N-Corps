@@ -1,8 +1,8 @@
 program main2D
-    integer, parameter :: nbCorps = 2, Nstep = 100000, chosen_mass = 2
-    integer :: sim, line, line2, nbSimulations = 10, pasCalcul=10 !nombre de pas sautés à chaque calcul de Lyapunov
+    integer, parameter :: nbCorps = 2, Nstep = 100000
+    integer :: sim, line, line2, nbSimulations = 5, pasCalcul=10 ! Nombre de pas sautés à chaque calcul de Lyapunov
     integer:: length = 0
-    real(8) :: dt = 10000.
+    real(8) :: dt = 500.
     real(8), dimension(nbCorps) :: M = [1.989e30, 0.33011e24]!, 4.8675e24, 5.9724e24, 0.64171e24, 1898.19e24]!, 568.34e24, &
     !86.813e24, 102.413e24] !
     real(8), dimension(nbCorps, 4) :: X
@@ -19,7 +19,9 @@ program main2D
 
     
     do sim = 1, nbSimulations
-        
+
+        ! Coordonnées initiales du système solaire: premier indice: numéro du corps. Second indice: (1,2,3,4)==(x,y,vx,vy)
+
         X(1,1) = 0; X(1,2) = 0; X(1,3) = 0; X(1,4) = 0
         X(2,1) = 57.909e9+(sim-1)*5e9; X(2,2) = 0; X(2,3) = 0; X(2,4) = 47.36e3
         ! X(3,1) = 108.209e9; X(3,2) = 0; X(3,3) = 0; X(3,4) = 35.02e3
@@ -64,9 +66,9 @@ program main2D
     write(command, '(A,I0)') "python Outils/csv_healer.py ", nbSimulations
     call execute_command_line(command, wait=.true., exitstat=status)
     
-    !call system("python Outils/Animation2D.py")
+    call system("python Outils/Animation2D.py")
 
-    call Lyapunov(nbSimulations, Nstep, nbCorps, M, chosen_mass, dt, length, pasCalcul)
+    call Lyapunov(nbSimulations, Nstep, nbCorps, M, dt, length, pasCalcul)
     
     call system("python Outils/graphiques.py")
 
@@ -75,3 +77,4 @@ end program main2D
 
 include 'Outils/Simulation2D.f90'
 include 'Outils/Lyapunov.f90'
+include 'Outils/Integrator.f90'

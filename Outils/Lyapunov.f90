@@ -1,8 +1,8 @@
 ! Cette sous fonction mesure l'exposant de Lyapunov du système pour chaque simulation
 
-subroutine Lyapunov(nb_simulations, Nstep, nbCorps, mass, chosen_mass, dt, length, pasCalcul)
+subroutine Lyapunov(nb_simulations, Nstep, nbCorps, mass, dt, length, pasCalcul)
 implicit none
-    integer, intent(in) :: nb_simulations, Nstep, nbCorps, chosen_mass, length, pasCalcul
+    integer, intent(in) :: nb_simulations, Nstep, nbCorps, length, pasCalcul
     real(8), dimension(nbCorps), intent(in) :: mass
     integer :: line, k, i, j, zoinks,l, m, n
     real(8), allocatable :: Xstep(:), Vstep(:), delta_zeros(:), delta_tees(:), lyp(:), log_dtees(:)

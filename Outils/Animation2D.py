@@ -30,11 +30,11 @@ fig.update_layout(title_text="Positions des masses au fil du temps",
 
 # Ajouter les frames pour l'animation (il est possible de choisir entre deux formats: lignes ou points)
 
-# Trajectoires avec des LIGNES
+# Trajectoires avec des POINTS
 # frames = [go.Frame(data=[go.Scatter(x=[data.iloc[frame, i]], y=[data.iloc[frame, i + 1]],
 #                                    mode='markers', name=f'Masse {i//2 + 1}') for i in range(0, len(data.columns), 2)]) for frame in range(1, len(data))]
 
-# Trajectoires avec des POINTS
+# Trajectoires avec des LIGNES
 frames = [go.Frame(data=[go.Scatter(x=data.iloc[:frame + 1, i], y=data.iloc[:frame + 1, i + 1],
                                    mode='lines', name=f'Masse {i//2 + 1}') for i in range(0, len(data.columns), 2)]) for frame in range(1, len(data))]
 
