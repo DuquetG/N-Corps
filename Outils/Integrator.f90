@@ -1,4 +1,5 @@
 ! Programme réunissant les différentes sous-fonctions d'intégration numérique
+! Les subroutines "rk4", "euler" et "velocity_verlet" ont directement été prises des notes de cours bien qu'elles soient un peu altérées afin de les utiliser avec des matrices. 
 
 ! Intégration selon la méthode de Runge-Kutta d'ordre 4
 subroutine rk4(t,X,dt,N,M,deriv)
