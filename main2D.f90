@@ -1,3 +1,6 @@
+! Programme principal permettant de mesurer les trajectoires, vitesses, énergies et exposants de Lyapunov des différentes masses du système
+! Il permet l'afficher de ces données sur divers graphiques et animations
+
 program main2D
     integer, parameter :: nbCorps = 2, Nstep = 100000
     integer :: sim, line, line2, nbSimulations = 5, pasCalcul=10 ! Nombre de pas sautés à chaque calcul de Lyapunov
