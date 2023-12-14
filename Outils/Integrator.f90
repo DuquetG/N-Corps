@@ -1,3 +1,6 @@
+! Programme réunissant les différentes sous-fonctions d'intégration numérique
+
+! Intégration selon la méthode de Runge-Kutta d'ordre 4
 subroutine rk4(t,X,dt,N,M,deriv)
     implicit none
     integer , intent (in) :: N
@@ -14,6 +17,7 @@ subroutine rk4(t,X,dt,N,M,deriv)
     t=t+dt
 end subroutine rk4
 
+! Intégration selon la méthode d'Euler
 subroutine euler(t,X,dt,N,M,deriv)
     implicit none
     integer , intent (in) :: N
@@ -25,6 +29,7 @@ subroutine euler(t,X,dt,N,M,deriv)
     X= X+dt*dX
 end subroutine euler
 
+! Integration selon la méthode de Verlet
 subroutine velocity_verlet (t,X,dt,N,M,deriv)
     implicit none
     integer , intent (in) :: n
@@ -41,6 +46,7 @@ subroutine velocity_verlet (t,X,dt,N,M,deriv)
         X(N /2+1: N, :) = X(N /2+1: N, :) + 0.5* dt* dX(N /2+1: N, :)
 end subroutine velocity_verlet
 
+! Intégration selon la méthode de Runge-Kutta d'ordre 4 avec pas adaptatif
 subroutine adaptativerk4(t,X,dt,N,M,tolerance)
     implicit none
     integer , intent (in) :: N
