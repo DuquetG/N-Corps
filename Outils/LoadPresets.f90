@@ -1,18 +1,20 @@
+! Prend un fichier .txt selon un format précis pour permettre l'usage de conditions initiales préréglées 
+
 program DataCreation2D
     implicit none
-    integer, parameter:: Nstep=100000 !number of steps considered for the simulation
-    real(8):: dt=10000.      !time step
-    integer, parameter:: dim=2         !number of dimension for the problem (currently only support dim=2)
+    integer, parameter:: Nstep=100000     ! number of steps considered for the simulation
+    real(8):: dt=10000.                   ! Pas de temps
+    integer, parameter:: dim=2            ! Nombre de dimensions du système (un maximum de 2 dimensions sont supportées actuellement)
     integer, parameter:: d=2*dim
     logical, parameter:: wtraj=.true., wenergy=.true., wviriel=.true., wvelocity=.true.
     character(len=*), parameter::  format='csv'
 
-    !Initialize position and velocity
+    ! Initialise les positions et vitesses
     integer :: nbCorps, io_status
     character(len=100) :: line, preset_name, filename
-    real(8), allocatable :: X(:,:)         !Position/velocity matrix
-    real(8), allocatable :: M(:)           !Mass of bodies
-    real(8), allocatable:: Xdis(:,:)       !Xdis(i,j)= distance between i and j
+    real(8), allocatable :: X(:,:)         ! Matrice des positions et vitesses
+    real(8), allocatable :: M(:)           ! Masses des corps
+    real(8), allocatable:: Xdis(:,:)       ! Xdis(i,j)= distance entre i et j
 
     integer :: i,j,k
     
