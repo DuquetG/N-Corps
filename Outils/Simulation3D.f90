@@ -1,10 +1,10 @@
 module Constant
     implicit none
-    real(8):: G=0.00001 !G=6.67430*1e-11
+    real(8):: G=0.00001 ! G=6.67430*1e-11
 end module Constant
 
 
-!3D generalisation that is nearly identical to its 2D counterpart
+! Généralisation 3D pratiquement identique au programme homologue à 2D
 subroutine Simulation3D(X, M, nbCorps, Nstep, dt) 
     implicit none
     integer:: nbCorps, Nstep
@@ -54,9 +54,9 @@ subroutine energy(N,M,X,Xdis,ecin,epot)
     epot=0
 
     do i=1, N
-        ecin=ecin+0.5*M(i)*(X(i,4)**2+X(i,5)**2+X(i,6)**2) !kinetic energy
+        ecin=ecin+0.5*M(i)*(X(i,4)**2+X(i,5)**2+X(i,6)**2) ! Énergie cinétique
         do j=i+1, N      
-            epot=epot-G*M(i)*M(j)/Xdis(i,j)      !potential energy
+            epot=epot-G*M(i)*M(j)/Xdis(i,j)      ! Énergie potentielle
         enddo
     enddo
 
