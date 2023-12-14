@@ -1,3 +1,5 @@
+# Ce programme permet de créer divers graphiques essentiels à l'analyse des données
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,7 +9,7 @@ import math
 #data = pd.read_csv("bodies_movement2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
 #data=data.to_numpy()
 
-#Graphique des positions dans le temps, avec code couleur pour chaque masse
+# Graphique des positions dans le temps, avec code couleur pour chaque masse
 def plot_positions():
     data = pd.read_csv("CSVs/positions_2D.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
     data=data.to_numpy()
@@ -18,7 +20,7 @@ def plot_positions():
     plt.ylabel('y')
     plt.show()
 
-#Graphique de l'énergie en fonction du temps, énergie cinétique, potentielle puis la somme des deux
+# Graphique de l'énergie en fonction du temps, énergie cinétique, potentielle puis la somme des deux
 def plot_energy():
     data = pd.read_csv("CSVs/energy.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
     data=data.to_numpy()
@@ -29,7 +31,7 @@ def plot_energy():
     plt.ylabel("E")
     plt.show()
 
-#Graphique de l'énergie potentielle et cinétique moyenne en fonction du temps
+# Graphique de l'énergie potentielle et cinétique moyenne en fonction du temps
 def plot_mean_energies():
     data = pd.read_csv("CSVs/viriel.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
     data=data.to_numpy()
@@ -40,7 +42,7 @@ def plot_mean_energies():
     plt.ylabel("<E>")
     plt.show()
 
-#Graphique du Viriel
+# Graphique du Viriel
 def plot_viriel():
     data = pd.read_csv("CSVs/viriel.csv", delimiter=";", skiprows=lambda x: x % 1000 != 0)
     data=data.to_numpy()
@@ -51,7 +53,7 @@ def plot_viriel():
     #plt.ylabel("")
     plt.show()
 
-#Graphique de la somme de toutes les distances entre deux masses pour deux simulations différentes
+# Graphique de la somme de toutes les distances entre deux masses pour deux simulations différentes
 def plot_massDistances():
     data = pd.read_csv("CSVs/massDistances.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
@@ -66,7 +68,7 @@ def plot_massDistances():
     plt.ylabel("")
     plt.legend((legende))
 
-#Graphique de l'exposant de Lyapunov
+# Graphique de l'exposant de Lyapunov
 def plot_Lyapunov():
     data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
@@ -82,7 +84,7 @@ def plot_Lyapunov():
     
     plt.legend((legende))
 
-#Graphique temps de Lyapunov
+# Graphique temps de Lyapunov
 def plot_Lyapunov_time():
     data = pd.read_csv("CSVs/Lyapunov.csv", delimiter=";",skiprows=lambda x: x % 1 != 0)
     data=data.to_numpy()
@@ -97,7 +99,7 @@ def plot_Lyapunov_time():
     plt.ylabel("τ")
     plt.legend((legende2))
 
-#Exécution des graphiques
+# Exécution des graphiques
 # plot_energy()
 # plt.show()
 # plot_viriel()
